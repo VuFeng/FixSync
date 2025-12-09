@@ -18,9 +18,9 @@ export interface PageResponse<T> {
 
 // User types
 export const Role = {
-  ADMIN: 'ADMIN',
-  TECHNICIAN: 'TECHNICIAN',
-  RECEPTIONIST: 'RECEPTIONIST',
+  ADMIN: "ADMIN",
+  TECHNICIAN: "TECHNICIAN",
+  RECEPTIONIST: "RECEPTIONIST",
 } as const;
 
 export type Role = (typeof Role)[keyof typeof Role];
@@ -49,12 +49,12 @@ export interface LoginResponse {
 
 // Device types
 export const DeviceStatus = {
-  RECEIVED: 'RECEIVED',
-  INSPECTING: 'INSPECTING',
-  WAITING_PARTS: 'WAITING_PARTS',
-  REPAIRING: 'REPAIRING',
-  COMPLETED: 'COMPLETED',
-  RETURNED: 'RETURNED',
+  RECEIVED: "RECEIVED",
+  INSPECTING: "INSPECTING",
+  WAITING_PARTS: "WAITING_PARTS",
+  REPAIRING: "REPAIRING",
+  COMPLETED: "COMPLETED",
+  RETURNED: "RETURNED",
 } as const;
 
 export type DeviceStatus = (typeof DeviceStatus)[keyof typeof DeviceStatus];
@@ -99,11 +99,29 @@ export interface Device {
   updatedAt: string;
 }
 
+export interface DeviceRequest {
+  customerName: string;
+  customerPhone: string;
+  deviceType?: string;
+  brandId: string; // UUID as string
+  modelId: string; // UUID as string
+  imei?: string;
+  color?: string;
+  receivedDate: string; // ISO datetime string
+  expectedReturnDate?: string; // ISO datetime string
+  warrantyMonths?: number;
+  assignedTo?: string; // UUID as string
+  status?: DeviceStatus;
+  note?: string;
+}
+
 // Repair Item types
 export interface RepairItem {
   id: string;
   deviceId: string;
+  serviceId?: string;
   serviceName: string;
+  serviceDescription?: string;
   partUsed?: string;
   cost: number;
   warrantyMonths?: number;
@@ -113,9 +131,9 @@ export interface RepairItem {
 
 // Transaction types
 export const PaymentMethod = {
-  CASH: 'CASH',
-  MOMO: 'MOMO',
-  BANKING: 'BANKING',
+  CASH: "CASH",
+  MOMO: "MOMO",
+  BANKING: "BANKING",
 } as const;
 
 export type PaymentMethod = (typeof PaymentMethod)[keyof typeof PaymentMethod];
@@ -143,24 +161,24 @@ export interface Warranty {
 
 // Media types
 export const MediaType = {
-  IMAGE: 'IMAGE',
-  DOCUMENT: 'DOCUMENT',
-  VIDEO: 'VIDEO',
-  AUDIO: 'AUDIO',
-  OTHER: 'OTHER',
+  IMAGE: "IMAGE",
+  DOCUMENT: "DOCUMENT",
+  VIDEO: "VIDEO",
+  AUDIO: "AUDIO",
+  OTHER: "OTHER",
 } as const;
 
 export type MediaType = (typeof MediaType)[keyof typeof MediaType];
 
 export const EntityType = {
-  DEVICE: 'DEVICE',
-  USER: 'USER',
-  BRAND: 'BRAND',
-  DEVICEMODEL: 'DEVICEMODEL',
-  REPAIRITEM: 'REPAIRITEM',
-  TRANSACTION: 'TRANSACTION',
-  WARRANTY: 'WARRANTY',
-  LOG: 'LOG',
+  DEVICE: "DEVICE",
+  USER: "USER",
+  BRAND: "BRAND",
+  DEVICEMODEL: "DEVICEMODEL",
+  REPAIRITEM: "REPAIRITEM",
+  TRANSACTION: "TRANSACTION",
+  WARRANTY: "WARRANTY",
+  LOG: "LOG",
 } as const;
 
 export type EntityType = (typeof EntityType)[keyof typeof EntityType];
@@ -185,10 +203,10 @@ export interface Media {
 
 // Realtime Log types
 export const ActionType = {
-  CREATED: 'CREATED',
-  UPDATED: 'UPDATED',
-  ASSIGNED: 'ASSIGNED',
-  STATUS_CHANGED: 'STATUS_CHANGED',
+  CREATED: "CREATED",
+  UPDATED: "UPDATED",
+  ASSIGNED: "ASSIGNED",
+  STATUS_CHANGED: "STATUS_CHANGED",
 } as const;
 
 export type ActionType = (typeof ActionType)[keyof typeof ActionType];
@@ -201,4 +219,3 @@ export interface RealtimeLog {
   createdBy: User;
   createdAt: string;
 }
-
