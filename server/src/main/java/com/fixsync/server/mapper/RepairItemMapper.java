@@ -14,6 +14,8 @@ import java.util.List;
 public interface RepairItemMapper {
     
     @Mapping(source = "device.id", target = "deviceId")
+    @Mapping(source = "serviceCatalog.id", target = "serviceId")
+    @Mapping(source = "serviceCatalog.description", target = "serviceDescription")
     RepairItemResponse toResponse(RepairItem repairItem);
     
     List<RepairItemResponse> toResponseList(List<RepairItem> repairItems);
@@ -24,6 +26,7 @@ public interface RepairItemMapper {
     @Mapping(target = "version", ignore = true)
     @Mapping(target = "device", ignore = true)
     @Mapping(target = "warranties", ignore = true)
+    @Mapping(target = "serviceCatalog", ignore = true)
     RepairItem toEntity(RepairItemRequest request);
     
     @Mapping(target = "id", ignore = true)
@@ -32,6 +35,7 @@ public interface RepairItemMapper {
     @Mapping(target = "version", ignore = true)
     @Mapping(target = "device", ignore = true)
     @Mapping(target = "warranties", ignore = true)
+    @Mapping(target = "serviceCatalog", ignore = true)
     void updateEntity(@MappingTarget RepairItem repairItem, RepairItemRequest request);
 }
 

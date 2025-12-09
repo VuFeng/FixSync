@@ -36,6 +36,10 @@ public class RepairItem extends BaseEntity {
     
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "service_id", foreignKey = @ForeignKey(name = "fk_repair_items_service_catalog"))
+    private ServiceCatalog serviceCatalog;
     
     // Relationships
     @OneToMany(mappedBy = "repairItem", cascade = CascadeType.ALL, fetch = FetchType.LAZY)

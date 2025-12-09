@@ -5,10 +5,12 @@ import com.fixsync.server.dto.response.PageResponse;
 import com.fixsync.server.dto.response.RepairItemResponse;
 import com.fixsync.server.entity.Device;
 import com.fixsync.server.entity.RepairItem;
+import com.fixsync.server.entity.ServiceCatalog;
 import com.fixsync.server.exception.ResourceNotFoundException;
 import com.fixsync.server.mapper.RepairItemMapper;
 import com.fixsync.server.repository.DeviceRepository;
 import com.fixsync.server.repository.RepairItemRepository;
+import com.fixsync.server.repository.ServiceCatalogRepository;
 import com.fixsync.server.service.RepairItemService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -26,6 +28,7 @@ public class RepairItemServiceImpl implements RepairItemService {
     
     private final RepairItemRepository repairItemRepository;
     private final DeviceRepository deviceRepository;
+    private final ServiceCatalogRepository serviceCatalogRepository;
     private final RepairItemMapper repairItemMapper;
     
     @Override
@@ -33,9 +36,38 @@ public class RepairItemServiceImpl implements RepairItemService {
     public RepairItemResponse createRepairItem(RepairItemRequest request) {
         Device device = deviceRepository.findById(request.getDeviceId())
                 .orElseThrow(() -> new ResourceNotFoundException("Thiết bị", "id", request.getDeviceId()));
+
+        ServiceCatalog serviceCatalog = null;
+        if (request.getServiceId() != null) {
+            serviceCatalog = serviceCatalogRepository.findById(request.getServiceId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Dịch vụ", "id", request.getServiceId()));
+        }
         
         RepairItem repairItem = repairItemMapper.toEntity(request);
         repairItem.setDevice(device);
+        repairItem.setServiceCatalog(serviceCatalog);
+
+        // Autofill from service catalog if available
+        if (serviceCatalog != null) {
+            repairItem.setServiceName(serviceCatalog.getName());
+            if (repairItem.getPartUsed() == null || repairItem.getPartUsed().isBlank()) {
+                repairItem.setPartUsed(serviceCatalog.getDefaultPartUsed());
+            }
+            if (repairItem.getCost() == null) {
+                repairItem.setCost(serviceCatalog.getBaseCost());
+            }
+            if (repairItem.getWarrantyMonths() == null) {
+                repairItem.setWarrantyMonths(serviceCatalog.getDefaultWarrantyMonths());
+            }
+        }
+
+        // If still missing serviceName or cost, throw
+        if (repairItem.getServiceName() == null || repairItem.getServiceName().isBlank()) {
+            throw new ResourceNotFoundException("Tên dịch vụ", "serviceName", null);
+        }
+        if (repairItem.getCost() == null) {
+            throw new ResourceNotFoundException("Chi phí", "cost", null);
+        }
         repairItem = repairItemRepository.save(repairItem);
         
         return repairItemMapper.toResponse(repairItem);
@@ -52,8 +84,39 @@ public class RepairItemServiceImpl implements RepairItemService {
                     .orElseThrow(() -> new ResourceNotFoundException("Thiết bị", "id", request.getDeviceId()));
             repairItem.setDevice(device);
         }
+
+        ServiceCatalog serviceCatalog = null;
+        if (request.getServiceId() != null) {
+            serviceCatalog = serviceCatalogRepository.findById(request.getServiceId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Dịch vụ", "id", request.getServiceId()));
+            repairItem.setServiceCatalog(serviceCatalog);
+        } else {
+            repairItem.setServiceCatalog(null);
+        }
         
         repairItemMapper.updateEntity(repairItem, request);
+
+        // Autofill if service catalog is selected
+        if (serviceCatalog != null) {
+            repairItem.setServiceName(serviceCatalog.getName());
+            if (request.getPartUsed() == null || request.getPartUsed().isBlank()) {
+                repairItem.setPartUsed(serviceCatalog.getDefaultPartUsed());
+            }
+            if (request.getCost() == null) {
+                repairItem.setCost(serviceCatalog.getBaseCost());
+            }
+            if (request.getWarrantyMonths() == null) {
+                repairItem.setWarrantyMonths(serviceCatalog.getDefaultWarrantyMonths());
+            }
+        }
+
+        // Ensure required fields
+        if (repairItem.getServiceName() == null || repairItem.getServiceName().isBlank()) {
+            throw new ResourceNotFoundException("Tên dịch vụ", "serviceName", null);
+        }
+        if (repairItem.getCost() == null) {
+            throw new ResourceNotFoundException("Chi phí", "cost", null);
+        }
         repairItem = repairItemRepository.save(repairItem);
         
         return repairItemMapper.toResponse(repairItem);
@@ -89,6 +152,21 @@ public class RepairItemServiceImpl implements RepairItemService {
                 .totalPages(repairItems.getTotalPages())
                 .first(repairItems.isFirst())
                 .last(repairItems.isLast())
+                .build();
+    }
+    
+    @Override
+    @Transactional(readOnly = true)
+    public PageResponse<RepairItemResponse> getAllRepairItems(Pageable pageable) {
+        Page<RepairItem> page = repairItemRepository.findAll(pageable);
+        return PageResponse.<RepairItemResponse>builder()
+                .content(repairItemMapper.toResponseList(page.getContent()))
+                .page(page.getNumber())
+                .size(page.getSize())
+                .totalElements(page.getTotalElements())
+                .totalPages(page.getTotalPages())
+                .first(page.isFirst())
+                .last(page.isLast())
                 .build();
     }
     

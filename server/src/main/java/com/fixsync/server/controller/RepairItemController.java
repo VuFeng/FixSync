@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,6 +25,7 @@ public class RepairItemController {
     
     private final RepairItemService repairItemService;
     
+    @PreAuthorize("hasAnyRole('ADMIN','TECHNICIAN')")
     @PostMapping
     public ResponseEntity<ApiResponse<RepairItemResponse>> createRepairItem(
             @Valid @RequestBody RepairItemRequest request) {
@@ -32,6 +34,7 @@ public class RepairItemController {
                 .body(ApiResponse.success("Tạo dịch vụ sửa chữa thành công", response));
     }
     
+    @PreAuthorize("hasAnyRole('ADMIN','TECHNICIAN')")
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<RepairItemResponse>> updateRepairItem(
             @PathVariable UUID id,
@@ -40,12 +43,28 @@ public class RepairItemController {
         return ResponseEntity.ok(ApiResponse.success("Cập nhật dịch vụ sửa chữa thành công", response));
     }
     
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<RepairItemResponse>> getRepairItemById(@PathVariable UUID id) {
         RepairItemResponse response = repairItemService.getRepairItemById(id);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
     
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping
+    public ResponseEntity<ApiResponse<PageResponse<RepairItemResponse>>> getAllRepairItems(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "DESC") String sortDir) {
+        
+        Sort sort = sortDir.equalsIgnoreCase("ASC") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        PageResponse<RepairItemResponse> response = repairItemService.getAllRepairItems(pageable);
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+    
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/device/{deviceId}")
     public ResponseEntity<?> getRepairItemsByDeviceId(
             @PathVariable UUID deviceId,
@@ -66,12 +85,14 @@ public class RepairItemController {
         }
     }
     
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/device/{deviceId}/total-cost")
     public ResponseEntity<ApiResponse<Integer>> getTotalCostByDeviceId(@PathVariable UUID deviceId) {
         Integer totalCost = repairItemService.calculateTotalCostByDeviceId(deviceId);
         return ResponseEntity.ok(ApiResponse.success(totalCost));
     }
     
+    @PreAuthorize("hasAnyRole('ADMIN','TECHNICIAN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteRepairItem(@PathVariable UUID id) {
         repairItemService.deleteRepairItem(id);

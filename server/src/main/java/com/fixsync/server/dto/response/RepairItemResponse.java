@@ -15,7 +15,9 @@ import java.util.UUID;
 public class RepairItemResponse {
     private UUID id;
     private UUID deviceId;
+    private UUID serviceId;
     private String serviceName;
+    private String serviceDescription;
     private String partUsed;
     private Integer cost;
     private Integer warrantyMonths;

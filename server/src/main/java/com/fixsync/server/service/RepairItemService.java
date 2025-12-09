@@ -14,6 +14,7 @@ public interface RepairItemService {
     RepairItemResponse getRepairItemById(UUID id);
     List<RepairItemResponse> getRepairItemsByDeviceId(UUID deviceId);
     PageResponse<RepairItemResponse> getRepairItemsByDeviceId(UUID deviceId, Pageable pageable);
+    PageResponse<RepairItemResponse> getAllRepairItems(Pageable pageable);
     void deleteRepairItem(UUID id);
     Integer calculateTotalCostByDeviceId(UUID deviceId);
 }

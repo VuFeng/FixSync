@@ -1,36 +1,32 @@
 package com.fixsync.server.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.UUID;
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class RepairItemRequest {
-    @NotNull(message = "ID thiết bị không được để trống")
-    private UUID deviceId;
+public class ServiceCatalogRequest {
 
-    private UUID serviceId;
-
+    @NotBlank(message = "Tên dịch vụ không được để trống")
     @Size(max = 255, message = "Tên dịch vụ không được vượt quá 255 ký tự")
-    private String serviceName;
+    private String name;
 
-    @Size(max = 255, message = "Linh kiện sử dụng không được vượt quá 255 ký tự")
-    private String partUsed;
+    @Size(max = 255, message = "Linh kiện mặc định không được vượt quá 255 ký tự")
+    private String defaultPartUsed;
 
     @PositiveOrZero(message = "Chi phí phải lớn hơn hoặc bằng 0")
-    private Integer cost;
+    private Integer baseCost;
 
-    private Integer warrantyMonths;
+    private Integer defaultWarrantyMonths;
 
     private String description;
+
+    private Boolean isActive = true;
 }
 
 
