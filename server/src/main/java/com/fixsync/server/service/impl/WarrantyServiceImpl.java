@@ -131,6 +131,21 @@ public class WarrantyServiceImpl implements WarrantyService {
     
     @Override
     @Transactional(readOnly = true)
+    public PageResponse<WarrantyResponse> getAllWarranties(Pageable pageable) {
+        Page<Warranty> warranties = warrantyRepository.findAll(pageable);
+        return PageResponse.<WarrantyResponse>builder()
+                .content(warrantyMapper.toResponseList(warranties.getContent()))
+                .page(warranties.getNumber())
+                .size(warranties.getSize())
+                .totalElements(warranties.getTotalElements())
+                .totalPages(warranties.getTotalPages())
+                .first(warranties.isFirst())
+                .last(warranties.isLast())
+                .build();
+    }
+    
+    @Override
+    @Transactional(readOnly = true)
     public List<WarrantyResponse> getWarrantiesExpiringBetween(LocalDateTime startDate, LocalDateTime endDate) {
         List<Warranty> warranties = warrantyRepository.findWarrantiesExpiringBetween(startDate, endDate);
         return warranties.stream()

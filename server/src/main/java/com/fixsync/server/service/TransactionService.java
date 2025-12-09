@@ -15,6 +15,7 @@ public interface TransactionService {
     TransactionResponse getTransactionById(UUID id);
     Optional<TransactionResponse> getTransactionByDeviceId(UUID deviceId);
     PageResponse<TransactionResponse> getTransactionsByDeviceId(UUID deviceId, Pageable pageable);
+    PageResponse<TransactionResponse> getAllTransactions(Pageable pageable);
     Long calculateRevenue(LocalDateTime startDate, LocalDateTime endDate);
     void deleteTransaction(UUID id);
 }

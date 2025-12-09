@@ -14,6 +14,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import com.fixsync.server.service.UserContextService;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -26,6 +27,7 @@ public class DeviceController {
     private final DeviceService deviceService;
     private final UserContextService userContextService;
     
+    @PreAuthorize("hasAnyRole('ADMIN','RECEPTIONIST')")
     @PostMapping
     public ResponseEntity<ApiResponse<DeviceResponse>> createDevice(
             @Valid @RequestBody DeviceRequest request) {
@@ -35,6 +37,7 @@ public class DeviceController {
                 .body(ApiResponse.success("Tạo thiết bị thành công", response));
     }
     
+    @PreAuthorize("hasAnyRole('ADMIN','TECHNICIAN')")
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<DeviceResponse>> updateDevice(
             @PathVariable UUID id,
@@ -43,12 +46,14 @@ public class DeviceController {
         return ResponseEntity.ok(ApiResponse.success("Cập nhật thiết bị thành công", response));
     }
     
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<DeviceResponse>> getDeviceById(@PathVariable UUID id) {
         DeviceResponse response = deviceService.getDeviceById(id);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
     
+    @PreAuthorize("isAuthenticated()")
     @GetMapping
     public ResponseEntity<ApiResponse<PageResponse<DeviceResponse>>> getAllDevices(
             @RequestParam(defaultValue = "0") int page,
@@ -63,6 +68,7 @@ public class DeviceController {
         return ResponseEntity.ok(ApiResponse.success(response));
     }
     
+    @PreAuthorize("hasAnyRole('ADMIN','TECHNICIAN')")
     @PatchMapping("/{id}/status")
     public ResponseEntity<ApiResponse<DeviceResponse>> updateDeviceStatus(
             @PathVariable UUID id,
@@ -72,6 +78,7 @@ public class DeviceController {
         return ResponseEntity.ok(ApiResponse.success("Cập nhật trạng thái thành công", response));
     }
     
+    @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/{id}/assign")
     public ResponseEntity<ApiResponse<DeviceResponse>> assignDevice(
             @PathVariable UUID id,
@@ -81,6 +88,7 @@ public class DeviceController {
         return ResponseEntity.ok(ApiResponse.success("Giao thiết bị thành công", response));
     }
     
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteDevice(@PathVariable UUID id) {
         deviceService.deleteDevice(id);

@@ -118,6 +118,21 @@ public class TransactionServiceImpl implements TransactionService {
     
     @Override
     @Transactional(readOnly = true)
+    public PageResponse<TransactionResponse> getAllTransactions(Pageable pageable) {
+        Page<Transaction> transactions = transactionRepository.findAll(pageable);
+        return PageResponse.<TransactionResponse>builder()
+                .content(transactionMapper.toResponseList(transactions.getContent()))
+                .page(transactions.getNumber())
+                .size(transactions.getSize())
+                .totalElements(transactions.getTotalElements())
+                .totalPages(transactions.getTotalPages())
+                .first(transactions.isFirst())
+                .last(transactions.isLast())
+                .build();
+    }
+    
+    @Override
+    @Transactional(readOnly = true)
     public Long calculateRevenue(LocalDateTime startDate, LocalDateTime endDate) {
         Long revenue = transactionRepository.sumFinalAmountByDateRange(startDate, endDate);
         return revenue != null ? revenue : 0L;

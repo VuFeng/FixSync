@@ -13,6 +13,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -26,6 +27,7 @@ public class WarrantyController {
     
     private final WarrantyService warrantyService;
     
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<ApiResponse<WarrantyResponse>> createWarranty(
             @Valid @RequestBody WarrantyRequest request) {
@@ -34,18 +36,36 @@ public class WarrantyController {
                 .body(ApiResponse.success("Tạo bảo hành thành công", response));
     }
     
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<WarrantyResponse>> getWarrantyById(@PathVariable UUID id) {
         WarrantyResponse response = warrantyService.getWarrantyById(id);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
     
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping
+    public ResponseEntity<ApiResponse<PageResponse<WarrantyResponse>>> getAllWarranties(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "DESC") String sortDir) {
+        
+        Sort sort = sortDir.equalsIgnoreCase("ASC") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        
+        PageResponse<WarrantyResponse> response = warrantyService.getAllWarranties(pageable);
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+    
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/code/{warrantyCode}")
     public ResponseEntity<ApiResponse<WarrantyResponse>> getWarrantyByCode(@PathVariable String warrantyCode) {
         WarrantyResponse response = warrantyService.getWarrantyByCode(warrantyCode);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
     
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/device/{deviceId}")
     public ResponseEntity<?> getWarrantiesByDeviceId(
             @PathVariable UUID deviceId,
@@ -66,6 +86,7 @@ public class WarrantyController {
         }
     }
     
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/expiring")
     public ResponseEntity<ApiResponse<List<WarrantyResponse>>> getWarrantiesExpiringBetween(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
@@ -74,12 +95,14 @@ public class WarrantyController {
         return ResponseEntity.ok(ApiResponse.success(response));
     }
     
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/expired")
     public ResponseEntity<ApiResponse<List<WarrantyResponse>>> getExpiredWarranties() {
         List<WarrantyResponse> response = warrantyService.getExpiredWarranties();
         return ResponseEntity.ok(ApiResponse.success(response));
     }
     
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<WarrantyResponse>> updateWarranty(
             @PathVariable UUID id,
@@ -88,6 +111,7 @@ public class WarrantyController {
         return ResponseEntity.ok(ApiResponse.success("Cập nhật bảo hành thành công", response));
     }
     
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteWarranty(@PathVariable UUID id) {
         warrantyService.deleteWarranty(id);

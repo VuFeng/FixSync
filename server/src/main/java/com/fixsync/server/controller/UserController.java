@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -23,6 +24,7 @@ public class UserController {
     
     private final UserService userService;
     
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<ApiResponse<UserResponse>> createUser(@Valid @RequestBody UserRequest request) {
         UserResponse response = userService.createUser(request);
@@ -30,6 +32,7 @@ public class UserController {
                 .body(ApiResponse.success("Tạo người dùng thành công", response));
     }
     
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<UserResponse>> updateUser(
             @PathVariable UUID id,
@@ -38,12 +41,14 @@ public class UserController {
         return ResponseEntity.ok(ApiResponse.success("Cập nhật người dùng thành công", response));
     }
     
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<UserResponse>> getUserById(@PathVariable UUID id) {
         UserResponse response = userService.getUserById(id);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
     
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     public ResponseEntity<ApiResponse<PageResponse<UserResponse>>> getAllUsers(
             @RequestParam(defaultValue = "0") int page,
@@ -58,18 +63,21 @@ public class UserController {
         return ResponseEntity.ok(ApiResponse.success(response));
     }
     
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteUser(@PathVariable UUID id) {
         userService.deleteUser(id);
         return ResponseEntity.ok(ApiResponse.success("Xóa người dùng thành công", null));
     }
     
+    @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/{id}/activate")
     public ResponseEntity<ApiResponse<UserResponse>> activateUser(@PathVariable UUID id) {
         UserResponse response = userService.activateUser(id);
         return ResponseEntity.ok(ApiResponse.success("Kích hoạt người dùng thành công", response));
     }
     
+    @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/{id}/deactivate")
     public ResponseEntity<ApiResponse<UserResponse>> deactivateUser(@PathVariable UUID id) {
         UserResponse response = userService.deactivateUser(id);

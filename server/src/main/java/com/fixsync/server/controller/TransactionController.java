@@ -13,6 +13,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -26,6 +27,7 @@ public class TransactionController {
     
     private final TransactionService transactionService;
     
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<ApiResponse<TransactionResponse>> createTransaction(
             @Valid @RequestBody TransactionRequest request) {
@@ -34,12 +36,29 @@ public class TransactionController {
                 .body(ApiResponse.success("Tạo giao dịch thành công", response));
     }
     
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<TransactionResponse>> getTransactionById(@PathVariable UUID id) {
         TransactionResponse response = transactionService.getTransactionById(id);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
     
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping
+    public ResponseEntity<ApiResponse<PageResponse<TransactionResponse>>> getAllTransactions(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "DESC") String sortDir) {
+        
+        Sort sort = sortDir.equalsIgnoreCase("ASC") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        
+        PageResponse<TransactionResponse> response = transactionService.getAllTransactions(pageable);
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+    
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/device/{deviceId}")
     public ResponseEntity<?> getTransactionByDeviceId(
             @PathVariable UUID deviceId,
@@ -64,6 +83,7 @@ public class TransactionController {
         }
     }
     
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/revenue")
     public ResponseEntity<ApiResponse<Long>> calculateRevenue(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
@@ -72,6 +92,7 @@ public class TransactionController {
         return ResponseEntity.ok(ApiResponse.success(revenue));
     }
     
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<TransactionResponse>> updateTransaction(
             @PathVariable UUID id,
@@ -80,6 +101,7 @@ public class TransactionController {
         return ResponseEntity.ok(ApiResponse.success("Cập nhật giao dịch thành công", response));
     }
     
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteTransaction(@PathVariable UUID id) {
         transactionService.deleteTransaction(id);

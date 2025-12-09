@@ -16,6 +16,7 @@ public interface WarrantyService {
     WarrantyResponse getWarrantyByCode(String warrantyCode);
     List<WarrantyResponse> getWarrantiesByDeviceId(UUID deviceId);
     PageResponse<WarrantyResponse> getWarrantiesByDeviceId(UUID deviceId, Pageable pageable);
+    PageResponse<WarrantyResponse> getAllWarranties(Pageable pageable);
     List<WarrantyResponse> getWarrantiesExpiringBetween(LocalDateTime startDate, LocalDateTime endDate);
     List<WarrantyResponse> getExpiredWarranties();
     void deleteWarranty(UUID id);
