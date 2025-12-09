@@ -2,6 +2,7 @@ package com.fixsync.server.service.impl;
 
 import com.fixsync.server.dto.request.LoginRequest;
 import com.fixsync.server.dto.response.LoginResponse;
+import com.fixsync.server.dto.response.UserResponse;
 import com.fixsync.server.entity.User;
 import com.fixsync.server.exception.UnauthorizedException;
 import com.fixsync.server.repository.UserRepository;
@@ -42,14 +43,21 @@ public class AuthServiceImpl implements AuthService {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new UnauthorizedException("Không tìm thấy người dùng"));
         
+        UserResponse userResponse = UserResponse.builder()
+                .id(user.getId())
+                .fullName(user.getFullName())
+                .email(user.getEmail())
+                .role(user.getRole())
+                .avatarUrl(user.getAvatarUrl())
+                .isActive(user.getIsActive())
+                .createdAt(user.getCreatedAt())
+                .updatedAt(user.getUpdatedAt())
+                .build();
+
         return LoginResponse.builder()
                 .token(token)
                 .tokenType("Bearer")
-                .userId(user.getId())
-                .email(user.getEmail())
-                .fullName(user.getFullName())
-                .role(user.getRole())
-                .avatarUrl(user.getAvatarUrl())
+                .user(userResponse)
                 .build();
     }
 }
