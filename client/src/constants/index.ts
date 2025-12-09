@@ -90,8 +90,10 @@ export const ROUTES = {
   DEVICE_DETAIL: (id: string) => `/devices/${id}`,
   USERS: "/users",
   REPAIR_ITEMS: "/repair-items",
+  REPAIR_ITEMS_NEW: "/repair-items/new",
   TRANSACTIONS: "/transactions",
   WARRANTIES: "/warranties",
+  BRANDS: "/brands",
   SETTINGS: "/settings",
 } as const;
 

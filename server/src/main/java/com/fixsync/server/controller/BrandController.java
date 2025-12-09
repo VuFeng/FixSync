@@ -9,6 +9,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -45,6 +46,29 @@ public class BrandController {
     public ResponseEntity<ApiResponse<BrandResponse>> getBrandById(@PathVariable UUID id) {
         BrandResponse response = brandService.getBrandById(id);
         return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping
+    public ResponseEntity<ApiResponse<BrandResponse>> createBrand(@RequestBody BrandResponse request) {
+        BrandResponse response = brandService.createBrand(request);
+        return ResponseEntity.ok(ApiResponse.success("Tạo hãng thành công", response));
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse<BrandResponse>> updateBrand(
+            @PathVariable UUID id,
+            @RequestBody BrandResponse request) {
+        BrandResponse response = brandService.updateBrand(id, request);
+        return ResponseEntity.ok(ApiResponse.success("Cập nhật hãng thành công", response));
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse<Void>> deleteBrand(@PathVariable UUID id) {
+        brandService.deleteBrand(id);
+        return ResponseEntity.ok(ApiResponse.success("Xóa hãng thành công", null));
     }
 }
 

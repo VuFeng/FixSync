@@ -11,6 +11,9 @@ public interface BrandService {
     List<BrandResponse> getAllActiveBrands();
     PageResponse<BrandResponse> getAllBrands(Pageable pageable);
     BrandResponse getBrandById(UUID id);
+    BrandResponse createBrand(BrandResponse request);
+    BrandResponse updateBrand(UUID id, BrandResponse request);
+    void deleteBrand(UUID id);
 }
 
 

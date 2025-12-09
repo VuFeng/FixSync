@@ -53,6 +53,33 @@ public class BrandServiceImpl implements BrandService {
                 .orElseThrow(() -> new ResourceNotFoundException("Hãng", "id", id));
         return brandMapper.toResponse(brand);
     }
+
+    @Override
+    @Transactional
+    public BrandResponse createBrand(BrandResponse request) {
+        Brand entity = brandMapper.toEntity(request);
+        entity.setId(null);
+        entity = brandRepository.save(entity);
+        return brandMapper.toResponse(entity);
+    }
+
+    @Override
+    @Transactional
+    public BrandResponse updateBrand(UUID id, BrandResponse request) {
+        Brand entity = brandRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Hãng", "id", id));
+        brandMapper.updateEntity(entity, request);
+        entity = brandRepository.save(entity);
+        return brandMapper.toResponse(entity);
+    }
+
+    @Override
+    @Transactional
+    public void deleteBrand(UUID id) {
+        Brand entity = brandRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Hãng", "id", id));
+        brandRepository.delete(entity);
+    }
 }
 
 
