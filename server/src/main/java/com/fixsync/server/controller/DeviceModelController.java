@@ -9,6 +9,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -51,6 +52,31 @@ public class DeviceModelController {
     public ResponseEntity<ApiResponse<DeviceModelResponse>> getModelById(@PathVariable UUID id) {
         DeviceModelResponse response = deviceModelService.getModelById(id);
         return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/brand/{brandId}")
+    public ResponseEntity<ApiResponse<DeviceModelResponse>> createModel(
+            @PathVariable UUID brandId,
+            @RequestBody DeviceModelResponse request) {
+        DeviceModelResponse response = deviceModelService.createModel(brandId, request);
+        return ResponseEntity.ok(ApiResponse.success("Tạo model thành công", response));
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse<DeviceModelResponse>> updateModel(
+            @PathVariable UUID id,
+            @RequestBody DeviceModelResponse request) {
+        DeviceModelResponse response = deviceModelService.updateModel(id, request);
+        return ResponseEntity.ok(ApiResponse.success("Cập nhật model thành công", response));
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse<Void>> deleteModel(@PathVariable UUID id) {
+        deviceModelService.deleteModel(id);
+        return ResponseEntity.ok(ApiResponse.success("Xóa model thành công", null));
     }
 }
 

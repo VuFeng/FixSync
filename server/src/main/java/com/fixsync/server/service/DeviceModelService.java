@@ -12,5 +12,8 @@ public interface DeviceModelService {
     PageResponse<DeviceModelResponse> getModelsByBrandId(UUID brandId, Pageable pageable);
     List<DeviceModelResponse> getModelsByDeviceType(String deviceType);
     DeviceModelResponse getModelById(UUID id);
+    DeviceModelResponse createModel(UUID brandId, DeviceModelResponse request);
+    DeviceModelResponse updateModel(UUID id, DeviceModelResponse request);
+    void deleteModel(UUID id);
 }
 
