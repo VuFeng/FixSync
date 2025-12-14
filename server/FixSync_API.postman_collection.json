@@ -2,281 +2,104 @@
   "info": {
     "_postman_id": "fixsync-api-collection",
     "name": "FixSync API",
-    "description": "API collection cho hệ thống quản lý sửa chữa điện thoại. Tất cả IDs được đồng bộ qua collection variables.",
+    "description": "Full CRUD for FixSync backend",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
     {
-      "name": "Authentication",
+      "name": "Auth",
       "item": [
         {
           "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"admin@fixsync.com\",\n  \"password\": \"admin123\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/auth/login", "host": ["{{baseUrl}}"], "path": ["api", "auth", "login"] }
+          },
           "event": [
             {
               "listen": "test",
               "script": {
+                "type": "text/javascript",
                 "exec": [
                   "if (pm.response.code === 200) {",
-                  "    const response = pm.response.json();",
-                  "    if (response.data && response.data.token) {",
-                  "        pm.collectionVariables.set(\"authToken\", response.data.token);",
-                  "        pm.collectionVariables.set(\"tokenType\", response.data.tokenType || \"Bearer\");",
-                  "        if (response.data.userId) {",
-                  "            pm.collectionVariables.set(\"userId\", response.data.userId);",
-                  "        }",
-                  "    }",
+                  "  const r = pm.response.json();",
+                  "  if (r.data && r.data.token) {",
+                  "    pm.collectionVariables.set('authToken', r.data.token);",
+                  "  }",
                   "}"
-                ],
-                "type": "text/javascript"
+                ]
               }
             }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n    \"email\": \"admin@fixsync.com\",\n    \"password\": \"admin123\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/auth/login",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "login"]
-            },
-            "description": "Đăng nhập và lấy JWT token. Tự động lưu userId và authToken vào collection variables."
-          },
-          "response": []
+          ]
         }
       ]
     },
     {
-      "name": "Users",
+      "name": "Customers",
       "item": [
         {
-          "name": "Get All Users",
+          "name": "Create Customer",
           "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{authToken}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/api/users?page=0&size=10&sortBy=createdAt&sortDir=DESC",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "users"],
-              "query": [
-                {
-                  "key": "page",
-                  "value": "0"
-                },
-                {
-                  "key": "size",
-                  "value": "10"
-                },
-                {
-                  "key": "sortBy",
-                  "value": "createdAt"
-                },
-                {
-                  "key": "sortDir",
-                  "value": "DESC"
-                }
-              ]
-            },
-            "description": "Lấy danh sách người dùng với phân trang"
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{authToken}}", "type": "string" }] },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Nguyen Van A\",\n  \"phone\": \"0901234567\",\n  \"email\": \"customer@example.com\",\n  \"address\": \"123 Le Loi\",\n  \"note\": \"VIP\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/customers", "host": ["{{baseUrl}}"], "path": ["api", "customers"] }
           },
-          "response": []
-        },
-        {
-          "name": "Get User By ID",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{authToken}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/api/users/{{userId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "users", "{{userId}}"]
-            },
-            "description": "Lấy thông tin người dùng theo ID. Sử dụng {{userId}} từ collection variables."
-          },
-          "response": []
-        },
-        {
-          "name": "Create User",
           "event": [
             {
               "listen": "test",
-              "script": {
-                "exec": [
-                  "if (pm.response.code === 201 || pm.response.code === 200) {",
-                  "    const response = pm.response.json();",
-                  "    if (response.data && response.data.id) {",
-                  "        pm.collectionVariables.set(\"userId\", response.data.id);",
-                  "        console.log(\"Saved userId:\", response.data.id);",
-                  "    }",
-                  "}"
-                ],
-                "type": "text/javascript"
-              }
+              "script": { "type": "text/javascript", "exec": ["const r=pm.response.json(); if(r.data&&r.data.id){pm.collectionVariables.set('customerId',r.data.id);}"] }
             }
-          ],
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{authToken}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n    \"fullName\": \"Nguyễn Văn A\",\n    \"email\": \"technician@fixsync.com\",\n    \"password\": \"password123\",\n    \"role\": \"TECHNICIAN\",\n    \"avatarUrl\": \"https://example.com/avatar.jpg\",\n    \"isActive\": true\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/users",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "users"]
-            },
-            "description": "Tạo người dùng mới. Role: ADMIN, TECHNICIAN, RECEPTIONIST. Tự động lưu userId vào collection variables."
-          },
-          "response": []
+          ]
         },
         {
-          "name": "Update User",
+          "name": "Get Customers",
           "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{authToken}}",
-                  "type": "string"
-                }
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{authToken}}", "type": "string" }] },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/customers?page=0&size=10&sortBy=createdAt&sortDir=DESC",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "customers"],
+              "query": [
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "10" },
+                { "key": "sortBy", "value": "createdAt" },
+                { "key": "sortDir", "value": "DESC" }
               ]
-            },
+            }
+          }
+        },
+        {
+          "name": "Get Customer By ID",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{authToken}}", "type": "string" }] },
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/customers/{{customerId}}", "host": ["{{baseUrl}}"], "path": ["api", "customers", "{{customerId}}"] }
+          }
+        },
+        {
+          "name": "Update Customer",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{authToken}}", "type": "string" }] },
             "method": "PUT",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n    \"fullName\": \"Nguyễn Văn A Updated\",\n    \"email\": \"technician@fixsync.com\",\n    \"password\": \"newpassword123\",\n    \"role\": \"TECHNICIAN\",\n    \"avatarUrl\": \"https://example.com/avatar-new.jpg\",\n    \"isActive\": true\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/users/{{userId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "users", "{{userId}}"]
-            },
-            "description": "Cập nhật thông tin người dùng. Sử dụng {{userId}} từ collection variables."
-          },
-          "response": []
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Nguyen Van A Updated\",\n  \"phone\": \"0901234567\",\n  \"email\": \"customer+1@example.com\",\n  \"address\": \"456 Hai Ba Trung\",\n  \"note\": \"Updated\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/customers/{{customerId}}", "host": ["{{baseUrl}}"], "path": ["api", "customers", "{{customerId}}"] }
+          }
         },
         {
-          "name": "Delete User",
+          "name": "Delete Customer",
           "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{authToken}}",
-                  "type": "string"
-                }
-              ]
-            },
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{authToken}}", "type": "string" }] },
             "method": "DELETE",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/api/users/{{userId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "users", "{{userId}}"]
-            },
-            "description": "Xóa người dùng. Sử dụng {{userId}} từ collection variables."
-          },
-          "response": []
-        },
-        {
-          "name": "Activate User",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{authToken}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "PATCH",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/api/users/{{userId}}/activate",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "users", "{{userId}}", "activate"]
-            },
-            "description": "Kích hoạt người dùng. Sử dụng {{userId}} từ collection variables."
-          },
-          "response": []
-        },
-        {
-          "name": "Deactivate User",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{authToken}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "PATCH",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/api/users/{{userId}}/deactivate",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "users", "{{userId}}", "deactivate"]
-            },
-            "description": "Vô hiệu hóa người dùng. Sử dụng {{userId}} từ collection variables."
-          },
-          "response": []
+            "url": { "raw": "{{baseUrl}}/api/customers/{{customerId}}", "host": ["{{baseUrl}}"], "path": ["api", "customers", "{{customerId}}"] }
+          }
         }
       ]
     },
@@ -284,239 +107,122 @@
       "name": "Devices",
       "item": [
         {
-          "name": "Get All Devices",
+          "name": "Create Device",
           "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{authToken}}",
-                  "type": "string"
-                }
-              ]
-            },
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{authToken}}", "type": "string" }] },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"customerId\": \"{{customerId}}\",\n  \"deviceType\": \"Apple\",\n  \"brandId\": \"{{brandId}}\",\n  \"modelId\": \"{{modelId}}\",\n  \"imei\": \"123456789012345\",\n  \"color\": \"Purple\",\n  \"note\": \"Broken screen\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/devices", "host": ["{{baseUrl}}"], "path": ["api", "devices"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": { "type": "text/javascript", "exec": ["const r=pm.response.json(); if(r.data&&r.data.id){pm.collectionVariables.set('deviceId',r.data.id);}"] }
+            }
+          ]
+        },
+        {
+          "name": "Get Devices",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{authToken}}", "type": "string" }] },
             "method": "GET",
-            "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/devices?page=0&size=10&sortBy=createdAt&sortDir=DESC",
               "host": ["{{baseUrl}}"],
               "path": ["api", "devices"],
               "query": [
-                {
-                  "key": "page",
-                  "value": "0"
-                },
-                {
-                  "key": "size",
-                  "value": "10"
-                },
-                {
-                  "key": "sortBy",
-                  "value": "createdAt"
-                },
-                {
-                  "key": "sortDir",
-                  "value": "DESC"
-                }
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "10" },
+                { "key": "sortBy", "value": "createdAt" },
+                { "key": "sortDir", "value": "DESC" }
               ]
-            },
-            "description": "Lấy danh sách thiết bị với phân trang"
-          },
-          "response": []
+            }
+          }
         },
         {
           "name": "Get Device By ID",
           "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{authToken}}",
-                  "type": "string"
-                }
-              ]
-            },
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{authToken}}", "type": "string" }] },
             "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/api/devices/{{deviceId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "devices", "{{deviceId}}"]
-            },
-            "description": "Lấy thông tin thiết bị theo ID. Sử dụng {{deviceId}} từ collection variables."
-          },
-          "response": []
-        },
-        {
-          "name": "Create Device",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "if (pm.response.code === 201 || pm.response.code === 200) {",
-                  "    const response = pm.response.json();",
-                  "    if (response.data && response.data.id) {",
-                  "        pm.collectionVariables.set(\"deviceId\", response.data.id);",
-                  "        console.log(\"Saved deviceId:\", response.data.id);",
-                  "    }",
-                  "}"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{authToken}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n    \"customerName\": \"Nguyễn Văn B\",\n    \"customerPhone\": \"0901234567\",\n    \"deviceType\": \"Apple\",\n    \"brandId\": \"{{brandId}}\",\n    \"modelId\": \"{{modelId}}\",\n    \"imei\": \"123456789012345\",\n    \"color\": \"Tím\",\n    \"receivedDate\": \"2024-01-15T10:00:00\",\n    \"expectedReturnDate\": \"2024-01-20T17:00:00\",\n    \"warrantyMonths\": 3,\n    \"assignedTo\": null,\n    \"status\": \"RECEIVED\",\n    \"note\": \"Màn hình bị vỡ, cần thay màn hình\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/devices",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "devices"]
-            },
-            "description": "Tạo thiết bị mới. Status: RECEIVED, INSPECTING, WAITING_PARTS, REPAIRING, COMPLETED, RETURNED. Sử dụng {{brandId}} và {{modelId}} từ collection variables. deviceType phải khớp với tên brand (Apple, Samsung, Xiaomi, etc.). Tự động lưu deviceId vào collection variables."
-          },
-          "response": []
+            "url": { "raw": "{{baseUrl}}/api/devices/{{deviceId}}", "host": ["{{baseUrl}}"], "path": ["api", "devices", "{{deviceId}}"] }
+          }
         },
         {
           "name": "Update Device",
           "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{authToken}}",
-                  "type": "string"
-                }
-              ]
-            },
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{authToken}}", "type": "string" }] },
             "method": "PUT",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n    \"customerName\": \"Nguyễn Văn B\",\n    \"customerPhone\": \"0901234567\",\n    \"deviceType\": \"Apple\",\n    \"brandId\": \"00000000-0000-0000-0001-000000000001\",\n    \"modelId\": \"00000000-0000-0000-0002-000000000006\",\n    \"imei\": \"123456789012345\",\n    \"color\": \"Tím\",\n    \"receivedDate\": \"2024-01-15T10:00:00\",\n    \"expectedReturnDate\": \"2024-01-20T17:00:00\",\n    \"warrantyMonths\": 3,\n    \"assignedTo\": null,\n    \"status\": \"INSPECTING\",\n    \"note\": \"Đã kiểm tra, cần thay màn hình\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/devices/{{deviceId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "devices", "{{deviceId}}"]
-            },
-            "description": "Cập nhật thông tin thiết bị. Sử dụng {{deviceId}}, {{brandId}} và {{modelId}} từ collection variables."
-          },
-          "response": []
-        },
-        {
-          "name": "Update Device Status",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{authToken}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "PATCH",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/api/devices/{{deviceId}}/status?status=REPAIRING",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "devices", "{{deviceId}}", "status"],
-              "query": [
-                {
-                  "key": "status",
-                  "value": "REPAIRING",
-                  "description": "RECEIVED, INSPECTING, WAITING_PARTS, REPAIRING, COMPLETED, RETURNED"
-                }
-              ]
-            },
-            "description": "Cập nhật trạng thái thiết bị. Sử dụng {{deviceId}} từ collection variables."
-          },
-          "response": []
-        },
-        {
-          "name": "Assign Device",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{authToken}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "PATCH",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/api/devices/{{deviceId}}/assign?assignedToId={{technicianId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "devices", "{{deviceId}}", "assign"],
-              "query": [
-                {
-                  "key": "assignedToId",
-                  "value": "{{technicianId}}",
-                  "description": "ID của kỹ thuật viên. Sử dụng {{technicianId}} từ collection variables."
-                }
-              ]
-            },
-            "description": "Giao thiết bị cho kỹ thuật viên. Sử dụng {{deviceId}} và {{technicianId}} từ collection variables."
-          },
-          "response": []
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"customerId\": \"{{customerId}}\",\n  \"deviceType\": \"Apple\",\n  \"brandId\": \"{{brandId}}\",\n  \"modelId\": \"{{modelId}}\",\n  \"imei\": \"123456789012345\",\n  \"color\": \"Purple\",\n  \"note\": \"Updated note\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/devices/{{deviceId}}", "host": ["{{baseUrl}}"], "path": ["api", "devices", "{{deviceId}}"] }
+          }
         },
         {
           "name": "Delete Device",
           "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{authToken}}",
-                  "type": "string"
-                }
-              ]
-            },
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{authToken}}", "type": "string" }] },
             "method": "DELETE",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/api/devices/{{deviceId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "devices", "{{deviceId}}"]
-            },
-            "description": "Xóa thiết bị. Sử dụng {{deviceId}} từ collection variables."
+            "url": { "raw": "{{baseUrl}}/api/devices/{{deviceId}}", "host": ["{{baseUrl}}"], "path": ["api", "devices", "{{deviceId}}"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Repair Sessions",
+      "item": [
+        {
+          "name": "Create Repair Session",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{authToken}}", "type": "string" }] },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"deviceId\": \"{{deviceId}}\",\n  \"status\": \"RECEIVED\",\n  \"expectedReturnDate\": \"2024-12-31T17:00:00\",\n  \"note\": \"Session note\",\n  \"assignedTo\": \"{{technicianId}}\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/repair-sessions", "host": ["{{baseUrl}}"], "path": ["api", "repair-sessions"] }
           },
-          "response": []
+          "event": [
+            {
+              "listen": "test",
+              "script": { "type": "text/javascript", "exec": ["const r=pm.response.json(); if(r.data&&r.data.id){pm.collectionVariables.set('repairSessionId',r.data.id);}"] }
+            }
+          ]
+        },
+        {
+          "name": "Update Repair Session",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{authToken}}", "type": "string" }] },
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"deviceId\": \"{{deviceId}}\",\n  \"status\": \"REPAIRING\",\n  \"expectedReturnDate\": \"2025-01-02T12:00:00\",\n  \"note\": \"Working\",\n  \"assignedTo\": \"{{technicianId}}\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/repair-sessions/{{repairSessionId}}", "host": ["{{baseUrl}}"], "path": ["api", "repair-sessions", "{{repairSessionId}}"] }
+          }
+        },
+        {
+          "name": "Get Repair Session By ID",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{authToken}}", "type": "string" }] },
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/repair-sessions/{{repairSessionId}}", "host": ["{{baseUrl}}"], "path": ["api", "repair-sessions", "{{repairSessionId}}"] }
+          }
+        },
+        {
+          "name": "List Repair Sessions By Device",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{authToken}}", "type": "string" }] },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/repair-sessions?deviceId={{deviceId}}&page=0&size=10&sortBy=createdAt&sortDir=DESC",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "repair-sessions"],
+              "query": [
+                { "key": "deviceId", "value": "{{deviceId}}" },
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "10" },
+                { "key": "sortBy", "value": "createdAt" },
+                { "key": "sortDir", "value": "DESC" }
+              ]
+            }
+          }
         }
       ]
     },
@@ -524,196 +230,54 @@
       "name": "Repair Items",
       "item": [
         {
-          "name": "Get Repair Items By Device ID",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{authToken}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/api/repair-items/device/{{deviceId}}?paginated=false",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "repair-items", "device", "{{deviceId}}"],
-              "query": [
-                {
-                  "key": "paginated",
-                  "value": "false",
-                  "description": "true để lấy phân trang, false để lấy tất cả"
-                }
-              ]
-            },
-            "description": "Lấy danh sách dịch vụ sửa chữa của thiết bị. Sử dụng {{deviceId}} từ collection variables."
-          },
-          "response": []
-        },
-        {
-          "name": "Get Repair Item By ID",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{authToken}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/api/repair-items/{{repairItemId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "repair-items", "{{repairItemId}}"]
-            },
-            "description": "Lấy thông tin dịch vụ sửa chữa theo ID. Sử dụng {{repairItemId}} từ collection variables."
-          },
-          "response": []
-        },
-        {
           "name": "Create Repair Item",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{authToken}}", "type": "string" }] },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"deviceId\": \"{{deviceId}}\",\n  \"repairSessionId\": \"{{repairSessionId}}\",\n  \"serviceId\": \"{{serviceCatalogId}}\",\n  \"serviceName\": \"Screen Replacement\",\n  \"partUsed\": \"OLED\",\n  \"cost\": 1500000,\n  \"warrantyMonths\": 3,\n  \"description\": \"Replace screen\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/repair-items", "host": ["{{baseUrl}}"], "path": ["api", "repair-items"] }
+          },
           "event": [
             {
               "listen": "test",
-              "script": {
-                "exec": [
-                  "if (pm.response.code === 201 || pm.response.code === 200) {",
-                  "    const response = pm.response.json();",
-                  "    if (response.data && response.data.id) {",
-                  "        pm.collectionVariables.set(\"repairItemId\", response.data.id);",
-                  "        console.log(\"Saved repairItemId:\", response.data.id);",
-                  "    }",
-                  "}"
-                ],
-                "type": "text/javascript"
-              }
+              "script": { "type": "text/javascript", "exec": ["const r=pm.response.json(); if(r.data&&r.data.id){pm.collectionVariables.set('repairItemId',r.data.id);}"] }
             }
-          ],
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{authToken}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n    \"deviceId\": \"{{deviceId}}\",\n    \"serviceName\": \"Thay màn hình\",\n    \"partUsed\": \"Màn hình iPhone 14 Pro chính hãng\",\n    \"cost\": 2500000,\n    \"warrantyMonths\": 6,\n    \"description\": \"Thay màn hình mới, bảo hành 6 tháng\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/repair-items",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "repair-items"]
-            },
-            "description": "Tạo dịch vụ sửa chữa mới. Sử dụng {{deviceId}} từ collection variables. Tự động lưu repairItemId vào collection variables."
-          },
-          "response": []
+          ]
         },
         {
           "name": "Update Repair Item",
           "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{authToken}}",
-                  "type": "string"
-                }
-              ]
-            },
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{authToken}}", "type": "string" }] },
             "method": "PUT",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n    \"deviceId\": \"{{deviceId}}\",\n    \"serviceName\": \"Thay màn hình và pin\",\n    \"partUsed\": \"Màn hình iPhone 14 Pro + Pin chính hãng\",\n    \"cost\": 3500000,\n    \"warrantyMonths\": 6,\n    \"description\": \"Thay màn hình và pin mới\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/repair-items/{{repairItemId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "repair-items", "{{repairItemId}}"]
-            },
-            "description": "Cập nhật dịch vụ sửa chữa. Sử dụng {{deviceId}} và {{repairItemId}} từ collection variables."
-          },
-          "response": []
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"deviceId\": \"{{deviceId}}\",\n  \"repairSessionId\": \"{{repairSessionId}}\",\n  \"serviceId\": \"{{serviceCatalogId}}\",\n  \"serviceName\": \"Screen Replacement\",\n  \"partUsed\": \"OLED Premium\",\n  \"cost\": 1800000,\n  \"warrantyMonths\": 6,\n  \"description\": \"Replace screen better\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/repair-items/{{repairItemId}}", "host": ["{{baseUrl}}"], "path": ["api", "repair-items", "{{repairItemId}}"] }
+          }
         },
         {
-          "name": "Get Total Cost By Device ID",
+          "name": "Get Repair Item By ID",
           "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{authToken}}",
-                  "type": "string"
-                }
-              ]
-            },
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{authToken}}", "type": "string" }] },
             "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/api/repair-items/device/{{deviceId}}/total-cost",
-              "host": ["{{baseUrl}}"],
-              "path": [
-                "api",
-                "repair-items",
-                "device",
-                "{{deviceId}}",
-                "total-cost"
-              ]
-            },
-            "description": "Tính tổng chi phí sửa chữa của thiết bị. Sử dụng {{deviceId}} từ collection variables."
-          },
-          "response": []
+            "url": { "raw": "{{baseUrl}}/api/repair-items/{{repairItemId}}", "host": ["{{baseUrl}}"], "path": ["api", "repair-items", "{{repairItemId}}"] }
+          }
+        },
+        {
+          "name": "Get Repair Items By Device",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{authToken}}", "type": "string" }] },
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/repair-items/device/{{deviceId}}?paginated=false", "host": ["{{baseUrl}}"], "path": ["api", "repair-items", "device", "{{deviceId}}"], "query": [{ "key": "paginated", "value": "false" }] }
+          }
         },
         {
           "name": "Delete Repair Item",
           "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{authToken}}",
-                  "type": "string"
-                }
-              ]
-            },
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{authToken}}", "type": "string" }] },
             "method": "DELETE",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/api/repair-items/{{repairItemId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "repair-items", "{{repairItemId}}"]
-            },
-            "description": "Xóa dịch vụ sửa chữa. Sử dụng {{repairItemId}} từ collection variables."
-          },
-          "response": []
+            "url": { "raw": "{{baseUrl}}/api/repair-items/{{repairItemId}}", "host": ["{{baseUrl}}"], "path": ["api", "repair-items", "{{repairItemId}}"] }
+          }
         }
       ]
     },
@@ -721,202 +285,51 @@
       "name": "Transactions",
       "item": [
         {
-          "name": "Get Transaction By Device ID",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{authToken}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/api/transactions/device/{{deviceId}}?paginated=false",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "transactions", "device", "{{deviceId}}"],
-              "query": [
-                {
-                  "key": "paginated",
-                  "value": "false",
-                  "description": "true để lấy phân trang, false để lấy transaction mới nhất"
-                }
-              ]
-            },
-            "description": "Lấy giao dịch của thiết bị. Sử dụng {{deviceId}} từ collection variables."
-          },
-          "response": []
-        },
-        {
-          "name": "Get Transaction By ID",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{authToken}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/api/transactions/{{transactionId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "transactions", "{{transactionId}}"]
-            },
-            "description": "Lấy thông tin giao dịch theo ID. Sử dụng {{transactionId}} từ collection variables."
-          },
-          "response": []
-        },
-        {
           "name": "Create Transaction",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "if (pm.response.code === 201 || pm.response.code === 200) {",
-                  "    const response = pm.response.json();",
-                  "    if (response.data && response.data.id) {",
-                  "        pm.collectionVariables.set(\"transactionId\", response.data.id);",
-                  "        console.log(\"Saved transactionId:\", response.data.id);",
-                  "    }",
-                  "}"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
           "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{authToken}}",
-                  "type": "string"
-                }
-              ]
-            },
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{authToken}}", "type": "string" }] },
             "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n    \"deviceId\": \"{{deviceId}}\",\n    \"total\": 2500000,\n    \"discount\": 100000,\n    \"paymentMethod\": \"CASH\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/transactions",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "transactions"]
-            },
-            "description": "Tạo giao dịch mới. PaymentMethod: CASH, MOMO, BANKING. Sử dụng {{deviceId}} từ collection variables. Tự động lưu transactionId vào collection variables."
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"deviceId\": \"{{deviceId}}\",\n  \"repairSessionId\": \"{{repairSessionId}}\",\n  \"total\": 2000000,\n  \"discount\": 100000,\n  \"paymentMethod\": \"CASH\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/transactions", "host": ["{{baseUrl}}"], "path": ["api", "transactions"] }
           },
-          "response": []
-        },
-        {
-          "name": "Calculate Revenue",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{authToken}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/api/transactions/revenue?startDate=2024-01-01T00:00:00&endDate=2024-01-31T23:59:59",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "transactions", "revenue"],
-              "query": [
-                {
-                  "key": "startDate",
-                  "value": "2024-01-01T00:00:00",
-                  "description": "ISO 8601 format: YYYY-MM-DDTHH:mm:ss"
-                },
-                {
-                  "key": "endDate",
-                  "value": "2024-01-31T23:59:59",
-                  "description": "ISO 8601 format: YYYY-MM-DDTHH:mm:ss"
-                }
-              ]
-            },
-            "description": "Tính doanh thu theo khoảng thời gian"
-          },
-          "response": []
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["const r=pm.response.json(); if(r.data&&r.data.id){pm.collectionVariables.set('transactionId',r.data.id);}"] } }
+          ]
         },
         {
           "name": "Update Transaction",
           "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{authToken}}",
-                  "type": "string"
-                }
-              ]
-            },
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{authToken}}", "type": "string" }] },
             "method": "PUT",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n    \"deviceId\": \"{{deviceId}}\",\n    \"total\": 3000000,\n    \"discount\": 150000,\n    \"paymentMethod\": \"MOMO\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/transactions/{{transactionId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "transactions", "{{transactionId}}"]
-            },
-            "description": "Cập nhật giao dịch. Sử dụng {{transactionId}} và {{deviceId}} từ collection variables. PaymentMethod: CASH, MOMO, BANKING."
-          },
-          "response": []
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"deviceId\": \"{{deviceId}}\",\n  \"repairSessionId\": \"{{repairSessionId}}\",\n  \"total\": 2500000,\n  \"discount\": 150000,\n  \"paymentMethod\": \"MOMO\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/transactions/{{transactionId}}", "host": ["{{baseUrl}}"], "path": ["api", "transactions", "{{transactionId}}"] }
+          }
+        },
+        {
+          "name": "Get Transaction By ID",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{authToken}}", "type": "string" }] },
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/transactions/{{transactionId}}", "host": ["{{baseUrl}}"], "path": ["api", "transactions", "{{transactionId}}"] }
+          }
+        },
+        {
+          "name": "Get Transactions By Device",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{authToken}}", "type": "string" }] },
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/transactions/device/{{deviceId}}?paginated=false", "host": ["{{baseUrl}}"], "path": ["api", "transactions", "device", "{{deviceId}}"], "query": [{ "key": "paginated", "value": "false" }] }
+          }
         },
         {
           "name": "Delete Transaction",
           "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{authToken}}",
-                  "type": "string"
-                }
-              ]
-            },
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{authToken}}", "type": "string" }] },
             "method": "DELETE",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/api/transactions/{{transactionId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "transactions", "{{transactionId}}"]
-            },
-            "description": "Xóa giao dịch. Sử dụng {{transactionId}} từ collection variables."
-          },
-          "response": []
+            "url": { "raw": "{{baseUrl}}/api/transactions/{{transactionId}}", "host": ["{{baseUrl}}"], "path": ["api", "transactions", "{{transactionId}}"] }
+          }
         }
       ]
     },
@@ -924,254 +337,59 @@
       "name": "Warranties",
       "item": [
         {
-          "name": "Get Warranties By Device ID",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{authToken}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/api/warranties/device/{{deviceId}}?paginated=false",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "warranties", "device", "{{deviceId}}"],
-              "query": [
-                {
-                  "key": "paginated",
-                  "value": "false",
-                  "description": "true để lấy phân trang, false để lấy tất cả"
-                }
-              ]
-            },
-            "description": "Lấy danh sách bảo hành của thiết bị. Sử dụng {{deviceId}} từ collection variables."
-          },
-          "response": []
-        },
-        {
-          "name": "Get Warranty By ID",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{authToken}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/api/warranties/{{warrantyId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "warranties", "{{warrantyId}}"]
-            },
-            "description": "Lấy thông tin bảo hành theo ID. Sử dụng {{warrantyId}} từ collection variables."
-          },
-          "response": []
-        },
-        {
-          "name": "Get Warranty By Code",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{authToken}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/api/warranties/code/{{warrantyCode}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "warranties", "code", "{{warrantyCode}}"]
-            },
-            "description": "Tìm bảo hành theo mã bảo hành. Sử dụng {{warrantyCode}} từ collection variables."
-          },
-          "response": []
-        },
-        {
           "name": "Create Warranty",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "if (pm.response.code === 201 || pm.response.code === 200) {",
-                  "    const response = pm.response.json();",
-                  "    if (response.data && response.data.id) {",
-                  "        pm.collectionVariables.set(\"warrantyId\", response.data.id);",
-                  "        console.log(\"Saved warrantyId:\", response.data.id);",
-                  "    }",
-                  "    if (response.data && response.data.warrantyCode) {",
-                  "        pm.collectionVariables.set(\"warrantyCode\", response.data.warrantyCode);",
-                  "        console.log(\"Saved warrantyCode:\", response.data.warrantyCode);",
-                  "    }",
-                  "}"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
           "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{authToken}}",
-                  "type": "string"
-                }
-              ]
-            },
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{authToken}}", "type": "string" }] },
             "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n    \"deviceId\": \"{{deviceId}}\",\n    \"repairItemId\": \"{{repairItemId}}\",\n    \"warrantyMonths\": 6\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/warranties",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "warranties"]
-            },
-            "description": "Tạo bảo hành mới. repairItemId có thể null nếu là bảo hành tổng cho thiết bị. Sử dụng {{deviceId}} và {{repairItemId}} từ collection variables. Tự động lưu warrantyId và warrantyCode vào collection variables."
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"deviceId\": \"{{deviceId}}\",\n  \"repairSessionId\": \"{{repairSessionId}}\",\n  \"repairItemId\": \"{{repairItemId}}\",\n  \"warrantyMonths\": 6\n}" },
+            "url": { "raw": "{{baseUrl}}/api/warranties", "host": ["{{baseUrl}}"], "path": ["api", "warranties"] }
           },
-          "response": []
-        },
-        {
-          "name": "Get Warranties Expiring",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{authToken}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/api/warranties/expiring?startDate=2024-01-01T00:00:00&endDate=2024-01-31T23:59:59",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "warranties", "expiring"],
-              "query": [
-                {
-                  "key": "startDate",
-                  "value": "2024-01-01T00:00:00",
-                  "description": "ISO 8601 format: YYYY-MM-DDTHH:mm:ss"
-                },
-                {
-                  "key": "endDate",
-                  "value": "2024-01-31T23:59:59",
-                  "description": "ISO 8601 format: YYYY-MM-DDTHH:mm:ss"
-                }
-              ]
-            },
-            "description": "Lấy danh sách bảo hành sắp hết hạn trong khoảng thời gian"
-          },
-          "response": []
-        },
-        {
-          "name": "Get Expired Warranties",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{authToken}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/api/warranties/expired",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "warranties", "expired"]
-            },
-            "description": "Lấy danh sách bảo hành đã hết hạn"
-          },
-          "response": []
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["const r=pm.response.json(); if(r.data&&r.data.id){pm.collectionVariables.set('warrantyId',r.data.id);} if(r.data&&r.data.warrantyCode){pm.collectionVariables.set('warrantyCode',r.data.warrantyCode);}"] } }
+          ]
         },
         {
           "name": "Update Warranty",
           "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{authToken}}",
-                  "type": "string"
-                }
-              ]
-            },
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{authToken}}", "type": "string" }] },
             "method": "PUT",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n    \"deviceId\": \"{{deviceId}}\",\n    \"repairItemId\": \"{{repairItemId}}\",\n    \"warrantyMonths\": 12\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/warranties/{{warrantyId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "warranties", "{{warrantyId}}"]
-            },
-            "description": "Cập nhật bảo hành. Sử dụng {{warrantyId}}, {{deviceId}} và {{repairItemId}} từ collection variables."
-          },
-          "response": []
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"deviceId\": \"{{deviceId}}\",\n  \"repairSessionId\": \"{{repairSessionId}}\",\n  \"repairItemId\": \"{{repairItemId}}\",\n  \"warrantyMonths\": 12\n}" },
+            "url": { "raw": "{{baseUrl}}/api/warranties/{{warrantyId}}", "host": ["{{baseUrl}}"], "path": ["api", "warranties", "{{warrantyId}}"] }
+          }
+        },
+        {
+          "name": "Get Warranty By ID",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{authToken}}", "type": "string" }] },
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/warranties/{{warrantyId}}", "host": ["{{baseUrl}}"], "path": ["api", "warranties", "{{warrantyId}}"] }
+          }
+        },
+        {
+          "name": "Get Warranty By Code",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{authToken}}", "type": "string" }] },
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/warranties/code/{{warrantyCode}}", "host": ["{{baseUrl}}"], "path": ["api", "warranties", "code", "{{warrantyCode}}"] }
+          }
+        },
+        {
+          "name": "Get Warranties By Device",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{authToken}}", "type": "string" }] },
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/warranties/device/{{deviceId}}?paginated=false", "host": ["{{baseUrl}}"], "path": ["api", "warranties", "device", "{{deviceId}}"], "query": [{ "key": "paginated", "value": "false" }] }
+          }
         },
         {
           "name": "Delete Warranty",
           "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{authToken}}",
-                  "type": "string"
-                }
-              ]
-            },
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{authToken}}", "type": "string" }] },
             "method": "DELETE",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/api/warranties/{{warrantyId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "warranties", "{{warrantyId}}"]
-            },
-            "description": "Xóa bảo hành. Sử dụng {{warrantyId}} từ collection variables."
-          },
-          "response": []
+            "url": { "raw": "{{baseUrl}}/api/warranties/{{warrantyId}}", "host": ["{{baseUrl}}"], "path": ["api", "warranties", "{{warrantyId}}"] }
+          }
         }
       ]
     },
@@ -1180,69 +398,11 @@
       "item": [
         {
           "name": "Get All Brands",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{authToken}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/api/brands?page=0&size=20&sortBy=name&sortDir=ASC",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "brands"],
-              "query": [
-                {
-                  "key": "page",
-                  "value": "0"
-                },
-                {
-                  "key": "size",
-                  "value": "20"
-                },
-                {
-                  "key": "sortBy",
-                  "value": "name"
-                },
-                {
-                  "key": "sortDir",
-                  "value": "ASC"
-                }
-              ]
-            },
-            "description": "Lấy danh sách tất cả brands với phân trang"
-          },
-          "response": []
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/brands?page=0&size=20&sortBy=name&sortDir=ASC", "host": ["{{baseUrl}}"], "path": ["api", "brands"], "query": [{ "key": "page", "value": "0" }, { "key": "size", "value": "20" }, { "key": "sortBy", "value": "name" }, { "key": "sortDir", "value": "ASC" }] } }
         },
         {
           "name": "Get Brand By ID",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{authToken}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/api/brands/{{brandId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "brands", "{{brandId}}"]
-            },
-            "description": "Lấy thông tin brand theo ID. Sử dụng {{brandId}} từ collection variables."
-          },
-          "response": []
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/brands/{{brandId}}", "host": ["{{baseUrl}}"], "path": ["api", "brands", "{{brandId}}"] } }
         }
       ]
     },
@@ -1250,112 +410,25 @@
       "name": "Device Models",
       "item": [
         {
-          "name": "Get Models By Brand ID",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{authToken}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/api/device-models/brand/{{brandId}}?page=0&size=50&sortBy=name&sortDir=ASC",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "device-models", "brand", "{{brandId}}"],
-              "query": [
-                {
-                  "key": "page",
-                  "value": "0"
-                },
-                {
-                  "key": "size",
-                  "value": "50"
-                },
-                {
-                  "key": "sortBy",
-                  "value": "name"
-                },
-                {
-                  "key": "sortDir",
-                  "value": "ASC"
-                }
-              ]
-            },
-            "description": "Lấy danh sách models theo brand ID. Sử dụng {{brandId}} từ collection variables."
-          },
-          "response": []
+          "name": "Get Models By Brand",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/device-models/brand/{{brandId}}?page=0&size=50&sortBy=name&sortDir=ASC", "host": ["{{baseUrl}}"], "path": ["api", "device-models", "brand", "{{brandId}}"], "query": [{ "key": "page", "value": "0" }, { "key": "size", "value": "50" }, { "key": "sortBy", "value": "name" }, { "key": "sortDir", "value": "ASC" }] } }
         },
         {
           "name": "Get Model By ID",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{authToken}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/api/device-models/{{modelId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "device-models", "{{modelId}}"]
-            },
-            "description": "Lấy thông tin model theo ID. Sử dụng {{modelId}} từ collection variables."
-          },
-          "response": []
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/device-models/{{modelId}}", "host": ["{{baseUrl}}"], "path": ["api", "device-models", "{{modelId}}"] } }
         }
       ]
     },
     {
-      "name": "Logs",
+      "name": "Service Catalog",
       "item": [
         {
-          "name": "Get Logs By Device ID",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{authToken}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/api/logs/device/{{deviceId}}?paginated=false",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "logs", "device", "{{deviceId}}"],
-              "query": [
-                {
-                  "key": "paginated",
-                  "value": "false",
-                  "description": "true để lấy phân trang, false để lấy tất cả"
-                },
-                {
-                  "key": "action",
-                  "value": "",
-                  "disabled": true,
-                  "description": "CREATED, UPDATED, ASSIGNED, STATUS_CHANGED"
-                }
-              ]
-            },
-            "description": "Lấy danh sách log của thiết bị. Sử dụng {{deviceId}} từ collection variables."
-          },
-          "response": []
+          "name": "List Services",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/service-catalog?page=0&size=50&sortBy=name&sortDir=ASC", "host": ["{{baseUrl}}"], "path": ["api", "service-catalog"], "query": [{ "key": "page", "value": "0" }, { "key": "size", "value": "50" }, { "key": "sortBy", "value": "name" }, { "key": "sortDir", "value": "ASC" }] } }
+        },
+        {
+          "name": "Get Service By ID",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/service-catalog/{{serviceCatalogId}}", "host": ["{{baseUrl}}"], "path": ["api", "service-catalog", "{{serviceCatalogId}}"] } }
         }
       ]
     },
@@ -1364,362 +437,80 @@
       "item": [
         {
           "name": "Upload File",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "if (pm.response.code === 201 || pm.response.code === 200) {",
-                  "    const response = pm.response.json();",
-                  "    if (response.data && response.data.id) {",
-                  "        pm.collectionVariables.set(\"mediaId\", response.data.id);",
-                  "        console.log(\"Saved mediaId:\", response.data.id);",
-                  "    }",
-                  "}"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
           "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{authToken}}",
-                  "type": "string"
-                }
-              ]
-            },
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{authToken}}", "type": "string" }] },
             "method": "POST",
-            "header": [],
             "body": {
               "mode": "formdata",
               "formdata": [
-                {
-                  "key": "file",
-                  "type": "file",
-                  "src": [],
-                  "description": "File cần upload (image, document, etc.)"
-                },
-                {
-                  "key": "mediaType",
-                  "value": "IMAGE",
-                  "type": "text",
-                  "description": "IMAGE, DOCUMENT, VIDEO, AUDIO, OTHER"
-                },
-                {
-                  "key": "entityType",
-                  "value": "DEVICE",
-                  "type": "text",
-                  "description": "DEVICE, USER, BRAND, REPAIR_ITEM, TRANSACTION, WARRANTY, OTHER"
-                },
-                {
-                  "key": "entityId",
-                  "value": "{{deviceId}}",
-                  "type": "text",
-                  "description": "ID của entity liên quan (deviceId, userId, etc.)"
-                },
-                {
-                  "key": "description",
-                  "value": "Ảnh thiết bị",
-                  "type": "text",
-                  "description": "Mô tả file (optional)"
-                }
+                { "key": "file", "type": "file", "src": [] },
+                { "key": "mediaType", "value": "IMAGE", "type": "text" },
+                { "key": "entityType", "value": "DEVICE", "type": "text" },
+                { "key": "entityId", "value": "{{deviceId}}", "type": "text" },
+                { "key": "description", "value": "Ảnh thiết bị", "type": "text" }
               ]
             },
-            "url": {
-              "raw": "{{baseUrl}}/api/media/upload",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "media", "upload"]
-            },
-            "description": "Upload file. MediaType: IMAGE, DOCUMENT, VIDEO, AUDIO, OTHER. EntityType: DEVICE, USER, BRAND, etc. Tự động lưu mediaId vào collection variables."
+            "url": { "raw": "{{baseUrl}}/api/media/upload", "host": ["{{baseUrl}}"], "path": ["api", "media", "upload"] }
           },
-          "response": []
-        },
-        {
-          "name": "Download File",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/api/media/{{mediaId}}/download",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "media", "{{mediaId}}", "download"]
-            },
-            "description": "Download file. Public endpoint, không cần authentication. Sử dụng {{mediaId}} từ collection variables."
-          },
-          "response": []
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["const r=pm.response.json(); if(r.data&&r.data.id){pm.collectionVariables.set('mediaId',r.data.id);}"] } }
+          ]
         },
         {
           "name": "Get Media By ID",
           "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{authToken}}",
-                  "type": "string"
-                }
-              ]
-            },
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{authToken}}", "type": "string" }] },
             "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/api/media/{{mediaId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "media", "{{mediaId}}"]
-            },
-            "description": "Lấy thông tin file. Sử dụng {{mediaId}} từ collection variables."
-          },
-          "response": []
+            "url": { "raw": "{{baseUrl}}/api/media/{{mediaId}}", "host": ["{{baseUrl}}"], "path": ["api", "media", "{{mediaId}}"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Get Users",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{authToken}}", "type": "string" }] },
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/users?page=0&size=10&sortBy=createdAt&sortDir=DESC", "host": ["{{baseUrl}}"], "path": ["api", "users"], "query": [{ "key": "page", "value": "0" }, { "key": "size", "value": "10" }, { "key": "sortBy", "value": "createdAt" }, { "key": "sortDir", "value": "DESC" }] }
+          }
         },
         {
-          "name": "Get Media By Entity",
+          "name": "Create User",
           "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{authToken}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/api/media/entity/DEVICE/{{deviceId}}?paginated=false",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "media", "entity", "DEVICE", "{{deviceId}}"],
-              "query": [
-                {
-                  "key": "paginated",
-                  "value": "false",
-                  "description": "true để lấy phân trang, false để lấy tất cả"
-                }
-              ]
-            },
-            "description": "Lấy danh sách files của một entity. EntityType: DEVICE, USER, BRAND, etc. Sử dụng {{deviceId}} từ collection variables."
-          },
-          "response": []
-        },
-        {
-          "name": "Get Media By Entity And Type",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{authToken}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/api/media/entity/DEVICE/{{deviceId}}/type/IMAGE",
-              "host": ["{{baseUrl}}"],
-              "path": [
-                "api",
-                "media",
-                "entity",
-                "DEVICE",
-                "{{deviceId}}",
-                "type",
-                "IMAGE"
-              ]
-            },
-            "description": "Lấy files theo entity và loại. Ví dụ: lấy tất cả ảnh của một device. Sử dụng {{deviceId}} từ collection variables."
-          },
-          "response": []
-        },
-        {
-          "name": "Get My Uploads",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{authToken}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/api/media/my-uploads?page=0&size=10&sortBy=createdAt&sortDir=DESC",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "media", "my-uploads"],
-              "query": [
-                {
-                  "key": "page",
-                  "value": "0"
-                },
-                {
-                  "key": "size",
-                  "value": "10"
-                },
-                {
-                  "key": "sortBy",
-                  "value": "createdAt"
-                },
-                {
-                  "key": "sortDir",
-                  "value": "DESC"
-                }
-              ]
-            },
-            "description": "Lấy danh sách files đã upload bởi user hiện tại"
-          },
-          "response": []
-        },
-        {
-          "name": "Get All Media",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{authToken}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/api/media?page=0&size=10&sortBy=createdAt&sortDir=DESC",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "media"],
-              "query": [
-                {
-                  "key": "page",
-                  "value": "0"
-                },
-                {
-                  "key": "size",
-                  "value": "10"
-                },
-                {
-                  "key": "sortBy",
-                  "value": "createdAt"
-                },
-                {
-                  "key": "sortDir",
-                  "value": "DESC"
-                }
-              ]
-            },
-            "description": "Lấy danh sách tất cả files với phân trang"
-          },
-          "response": []
-        },
-        {
-          "name": "Delete Media",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{authToken}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "DELETE",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/api/media/{{mediaId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "media", "{{mediaId}}"]
-            },
-            "description": "Xóa file. Sử dụng {{mediaId}} từ collection variables."
-          },
-          "response": []
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{authToken}}", "type": "string" }] },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"fullName\": \"Tech User\",\n  \"email\": \"tech@example.com\",\n  \"password\": \"password123\",\n  \"role\": \"TECHNICIAN\",\n  \"avatarUrl\": null,\n  \"isActive\": true\n}" },
+            "url": { "raw": "{{baseUrl}}/api/users", "host": ["{{baseUrl}}"], "path": ["api", "users"] }
+          }
         }
       ]
     }
   ],
   "variable": [
-    {
-      "key": "baseUrl",
-      "value": "http://localhost:8080",
-      "type": "string"
-    },
-    {
-      "key": "authToken",
-      "value": "",
-      "type": "string"
-    },
-    {
-      "key": "userId",
-      "value": "",
-      "type": "string",
-      "description": "ID của user - tự động lưu sau khi login hoặc create user"
-    },
-    {
-      "key": "deviceId",
-      "value": "",
-      "type": "string",
-      "description": "ID của device - tự động lưu sau khi create device"
-    },
-    {
-      "key": "repairItemId",
-      "value": "",
-      "type": "string",
-      "description": "ID của repair item - tự động lưu sau khi create repair item"
-    },
-    {
-      "key": "transactionId",
-      "value": "",
-      "type": "string",
-      "description": "ID của transaction - tự động lưu sau khi create transaction"
-    },
-    {
-      "key": "warrantyId",
-      "value": "",
-      "type": "string",
-      "description": "ID của warranty - tự động lưu sau khi create warranty"
-    },
-    {
-      "key": "warrantyCode",
-      "value": "",
-      "type": "string",
-      "description": "Mã bảo hành - tự động lưu sau khi create warranty"
-    },
-    {
-      "key": "technicianId",
-      "value": "",
-      "type": "string",
-      "description": "ID của technician user - cần set thủ công hoặc lấy từ Get All Users"
-    },
-    {
-      "key": "brandId",
-      "value": "00000000-0000-0000-0001-000000000001",
-      "type": "string",
-      "description": "ID của brand - Apple: 00000000-0000-0000-0001-000000000001, Samsung: 00000000-0000-0000-0001-000000000002"
-    },
-    {
-      "key": "modelId",
-      "value": "00000000-0000-0000-0002-000000000006",
-      "type": "string",
-      "description": "ID của device model - iPhone 14 Pro: 00000000-0000-0000-0002-000000000006"
-    },
-    {
-      "key": "mediaId",
-      "value": "",
-      "type": "string",
-      "description": "ID của media/file - tự động lưu sau khi upload file"
-    }
+    { "key": "baseUrl", "value": "http://localhost:8080", "type": "string" },
+    { "key": "authToken", "value": "", "type": "string" },
+    { "key": "customerId", "value": "", "type": "string" },
+    { "key": "deviceId", "value": "", "type": "string" },
+    { "key": "repairSessionId", "value": "", "type": "string" },
+    { "key": "repairItemId", "value": "", "type": "string" },
+    { "key": "transactionId", "value": "", "type": "string" },
+    { "key": "warrantyId", "value": "", "type": "string" },
+    { "key": "warrantyCode", "value": "", "type": "string" },
+    { "key": "mediaId", "value": "", "type": "string" },
+    { "key": "technicianId", "value": "", "type": "string" },
+    { "key": "brandId", "value": "00000000-0000-0000-0001-000000000001", "type": "string" },
+    { "key": "modelId", "value": "00000000-0000-0000-0002-000000000006", "type": "string" },
+    { "key": "serviceCatalogId", "value": "", "type": "string" }
   ]
 }
+
+
+
+
+
+
+
