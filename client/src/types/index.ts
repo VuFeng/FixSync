@@ -47,7 +47,17 @@ export interface LoginResponse {
   user: User;
 }
 
-// Device types
+// Customer types
+export interface Customer {
+  id: string;
+  name: string;
+  phone: string;
+  email?: string;
+  address?: string;
+  note?: string;
+}
+
+// Legacy device status (backend no longer uses, kept for UI compatibility)
 export const DeviceStatus = {
   RECEIVED: "RECEIVED",
   INSPECTING: "INSPECTING",
@@ -81,37 +91,39 @@ export interface DeviceModel {
 
 export interface Device {
   id: string;
-  customerName: string;
-  customerPhone: string;
+  customer?: Customer;
+  customerName?: string;
+  customerPhone?: string;
   deviceType: string;
   brand?: Brand;
   model?: DeviceModel;
   imei?: string;
   color?: string;
-  receivedDate: string;
+  status?: string;
+  assignedTo?: User;
+  receivedDate?: string;
   expectedReturnDate?: string;
   warrantyMonths?: number;
   createdBy: User;
-  assignedTo?: User;
-  status: DeviceStatus;
   note?: string;
   createdAt: string;
   updatedAt: string;
+  // optional enrichments from detail API
+  repairItems?: RepairItem[];
+  transaction?: Transaction;
+  repairSubtotal?: number;
+  outstandingAmount?: number;
 }
 
 export interface DeviceRequest {
-  customerName: string;
-  customerPhone: string;
+  customerId?: string;
+  customerName?: string;
+  customerPhone?: string;
   deviceType?: string;
   brandId: string; // UUID as string
   modelId: string; // UUID as string
   imei?: string;
   color?: string;
-  receivedDate: string; // ISO datetime string
-  expectedReturnDate?: string; // ISO datetime string
-  warrantyMonths?: number;
-  assignedTo?: string; // UUID as string
-  status?: DeviceStatus;
   note?: string;
 }
 
@@ -119,12 +131,13 @@ export interface DeviceRequest {
 export interface RepairItem {
   id: string;
   deviceId: string;
+  repairSessionId?: string;
   serviceId?: string;
   serviceName: string;
   serviceDescription?: string;
   partUsed?: string;
-  cost: number;
-  warrantyMonths?: number;
+  cost: number | null;
+  warrantyMonths?: number | null;
   description?: string;
   createdAt: string;
 }
@@ -141,6 +154,7 @@ export type PaymentMethod = (typeof PaymentMethod)[keyof typeof PaymentMethod];
 export interface Transaction {
   id: string;
   deviceId: string;
+  repairSessionId?: string;
   total: number;
   discount: number;
   finalAmount: number;
@@ -148,15 +162,55 @@ export interface Transaction {
   createdAt: string;
 }
 
+export interface TransactionRequest {
+  deviceId: string;
+  repairSessionId?: string;
+  total: number;
+  discount: number;
+  paymentMethod: PaymentMethod;
+}
+
 // Warranty types
 export interface Warranty {
   id: string;
   deviceId: string;
+  repairSessionId?: string;
   repairItemId?: string;
   startDate: string;
   endDate: string;
   warrantyCode: string;
   createdAt: string;
+}
+
+export interface WarrantyRequest {
+  deviceId: string;
+  repairSessionId?: string;
+  repairItemId?: string;
+  warrantyMonths: number;
+}
+
+// Repair Session types
+export interface RepairSession {
+  id: string;
+  deviceId: string;
+  device?: Device; // Full device information
+  status: DeviceStatus;
+  receivedDate: string;
+  expectedReturnDate?: string;
+  note?: string;
+  assignedTo?: User;
+  createdBy: User;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface RepairSessionRequest {
+  deviceId: string;
+  status?: DeviceStatus;
+  receivedDate?: string;
+  expectedReturnDate?: string;
+  note?: string;
+  assignedTo?: string;
 }
 
 // Media types
