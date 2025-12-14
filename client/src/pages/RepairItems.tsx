@@ -5,6 +5,7 @@ import { RepairItemsList } from "../components/RepairItemsList";
 import { Button } from "../components/ui/Button";
 import { Link } from "react-router-dom";
 import { ROUTES } from "../constants";
+import { Breadcrumb } from "../components/Breadcrumb";
 
 export default function RepairItems() {
   const [filters, setFilters] = useState({
@@ -16,6 +17,7 @@ export default function RepairItems() {
     <>
       <DashboardHeader />
       <div className="p-6 space-y-6">
+        <Breadcrumb items={[{ label: "Repair Items" }]} />
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-text-primary">

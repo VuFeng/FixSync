@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Plus, Edit2, Trash2 } from "lucide-react";
+import { Plus, Edit2, Trash2, Tag } from "lucide-react";
 import { DashboardHeader } from "../components/DashboardHeader";
 import { Card } from "../components/ui/Card";
 import { Button } from "../components/ui/Button";
@@ -15,11 +15,13 @@ import {
 import { Badge } from "../components/ui/Badge";
 import { useBrands } from "../hooks/useBrands";
 import { useDeleteBrand } from "../hooks/useBrandMutations";
-import { useToast } from "../components/ui/Toaster";
+import { useToast } from "../hooks/useToast";
 import { ConfirmDialog } from "../components/ui/Dialog";
 import { SkeletonTable } from "../components/ui/Skeleton";
 import { formatDate } from "../utils/format";
 import { ROUTES } from "../constants";
+import { EmptyState } from "../components/EmptyState";
+import { Breadcrumb } from "../components/Breadcrumb";
 
 export default function Brands() {
   const toast = useToast();
@@ -46,6 +48,7 @@ export default function Brands() {
     <>
       <DashboardHeader />
       <div className="p-6 space-y-6">
+        <Breadcrumb items={[{ label: "Brands" }]} />
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-text-primary">Brands</h1>
@@ -82,11 +85,19 @@ export default function Brands() {
               <TableBody>
                 {brands.length === 0 ? (
                   <TableRow>
-                    <TableCell
-                      colSpan={5}
-                      className="text-center py-8 text-text-secondary"
-                    >
-                      No brands found
+                    <TableCell colSpan={4} className="p-0">
+                      <div className="py-12">
+                        <EmptyState
+                          icon={Tag}
+                          title="No brands found"
+                          description="Get started by adding your first device brand"
+                          action={{
+                            label: "Add Brand",
+                            onClick: () => (window.location.href = ROUTES.BRANDS + "/new"),
+                          }}
+                          className="border-0 shadow-none"
+                        />
+                      </div>
                     </TableCell>
                   </TableRow>
                 ) : (

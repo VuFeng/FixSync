@@ -1,5 +1,5 @@
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Printer } from "lucide-react";
 import { DashboardHeader } from "../components/DashboardHeader";
 import { Button } from "../components/ui/Button";
 import { DeviceDetailCard } from "../components/DeviceDetailCard";
@@ -19,15 +19,27 @@ export default function DeviceDetailPage() {
     <>
       <DashboardHeader />
       <div className="p-6 space-y-6">
-        <Link to={ROUTES.DEVICES}>
-          <Button
-            variant="ghost"
-            className="text-text-secondary hover:text-text-primary mb-4"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Devices
-          </Button>
-        </Link>
+        <div className="flex items-center justify-between">
+          <Link to={ROUTES.DEVICES}>
+            <Button
+              variant="ghost"
+              className="text-text-secondary hover:text-text-primary"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Devices
+            </Button>
+          </Link>
+          {device && (
+            <Button
+              variant="outline"
+              className="border-border"
+              onClick={() => window.print()}
+            >
+              <Printer className="w-4 h-4 mr-2" />
+              Print
+            </Button>
+          )}
+        </div>
 
         {isLoading && <p className="text-text-secondary">Loading device...</p>}
         {error && <p className="text-danger">Failed to load device.</p>}
@@ -37,7 +49,12 @@ export default function DeviceDetailPage() {
             <div className="lg:col-span-2 space-y-6">
               <DeviceDetailCard device={device} />
               <RepairTimeline deviceId={deviceId} />
-              <DeviceRepairItems deviceId={deviceId} />
+              <DeviceRepairItems
+                deviceId={deviceId}
+                itemsFromDevice={device.repairItems}
+                subtotalFromDevice={device.repairSubtotal}
+                transaction={device.transaction}
+              />
             </div>
             <div className="space-y-6">
               <WarrantyInfo deviceId={deviceId} />

@@ -6,18 +6,18 @@ import { DeviceFilters } from "../components/DeviceFilters";
 import { DeviceList } from "../components/DeviceList";
 import { Button } from "../components/ui/Button";
 import { ROUTES } from "../constants";
+import { Breadcrumb } from "../components/Breadcrumb";
 
 export default function Devices() {
   const [filters, setFilters] = useState({
     search: "",
-    status: "all",
-    technician: "all",
   });
 
   return (
     <>
       <DashboardHeader />
       <div className="p-6 space-y-6">
+        <Breadcrumb items={[{ label: "Devices" }]} />
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-text-primary">Devices</h1>
