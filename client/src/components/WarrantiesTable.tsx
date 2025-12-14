@@ -1,6 +1,10 @@
 import { useMemo } from "react";
-import { Shield, Search } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Shield, Search, ShieldCheck } from "lucide-react";
 import { Card } from "./ui/Card";
+import { EmptyState } from "./EmptyState";
+import { Button } from "./ui/Button";
+import { ROUTES } from "../constants";
 import {
   Table,
   TableBody,
@@ -42,7 +46,7 @@ export function WarrantiesTable({ search, onSearch }: Props) {
         .join(" ");
       map.set(d.id, {
         name,
-        customer: d.customerName,
+        customer: d.customer?.name || d.customerName || "N/A",
         imei: d.imei || undefined,
       });
     });
@@ -98,27 +102,47 @@ export function WarrantiesTable({ search, onSearch }: Props) {
               <TableHead className="text-text-secondary">Period</TableHead>
               <TableHead className="text-text-secondary">Status</TableHead>
               <TableHead className="text-text-secondary">Coverage</TableHead>
+              <TableHead className="text-text-secondary">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {isLoading && (
               <TableRow>
-                <TableCell colSpan={6} className="p-8">
-                  <SkeletonTable rows={5} cols={6} />
+                <TableCell colSpan={7} className="p-8">
+                  <SkeletonTable rows={5} cols={7} />
                 </TableCell>
               </TableRow>
             )}
             {error && !isLoading && (
               <TableRow>
-                <TableCell colSpan={6} className="text-center py-8 text-danger">
+                <TableCell colSpan={7} className="text-center py-8 text-danger">
                   Error loading warranties. Please try again.
                 </TableCell>
               </TableRow>
             )}
             {!isLoading && !error && filtered.length === 0 && (
               <TableRow>
-                <TableCell colSpan={6} className="text-center py-8 text-text-secondary">
-                  No warranties found
+                <TableCell colSpan={7} className="p-0">
+                  <div className="py-12">
+                    <EmptyState
+                      icon={search ? Search : ShieldCheck}
+                      title={search ? "No warranties found" : "No warranties yet"}
+                      description={
+                        search
+                          ? "Try adjusting your search criteria"
+                          : "Warranties will appear here once created for devices or repair items"
+                      }
+                      action={
+                        !search
+                          ? {
+                              label: "Create Warranty",
+                              onClick: () => (window.location.href = ROUTES.WARRANTY_NEW),
+                            }
+                          : undefined
+                      }
+                      className="border-0 shadow-none"
+                    />
+                  </div>
                 </TableCell>
               </TableRow>
             )}
@@ -126,9 +150,8 @@ export function WarrantiesTable({ search, onSearch }: Props) {
               !error &&
               filtered.map((warranty) => {
                 const status = getStatus(warranty);
-                const coverage =
-                  warranty.repairItemId && warranty.repairItemId !== ""
-                    ? `Linked repair item ${warranty.repairItemId}`
+                const coverage = warranty.repairItemId && warranty.repairItemId !== ""
+                    ? "Linked to repair service"
                     : "General device warranty";
                 return (
                   <TableRow
@@ -139,9 +162,7 @@ export function WarrantiesTable({ search, onSearch }: Props) {
                       {warranty.warrantyCode}
                     </TableCell>
                     <TableCell className="text-text-secondary">
-                      {warranty.deviceId
-                        ? warranty.deviceName || warranty.deviceId
-                        : "—"}
+                      {warranty.deviceName || "—"}
                       {warranty.imei ? (
                         <div className="text-text-tertiary text-xs">
                           IMEI: {warranty.imei}
@@ -173,6 +194,13 @@ export function WarrantiesTable({ search, onSearch }: Props) {
                           <span>{coverage}</span>
                         </div>
                       </div>
+                    </TableCell>
+                    <TableCell>
+                      <Link to={ROUTES.WARRANTIES + `/${warranty.id}`}>
+                        <Button variant="ghost" size="sm" className="text-primary hover:text-primary-dark">
+                          View
+                        </Button>
+                      </Link>
                     </TableCell>
                   </TableRow>
                 );

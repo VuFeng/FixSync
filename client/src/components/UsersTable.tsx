@@ -1,5 +1,8 @@
-import { Edit2, Trash2 } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Edit2, Trash2, Users } from "lucide-react";
 import { Card } from "./ui/Card";
+import { EmptyState } from "./EmptyState";
+import { ROUTES } from "../constants";
 import {
   Table,
   TableBody,
@@ -10,10 +13,10 @@ import {
 } from "./ui/Table";
 import { Badge } from "./ui/Badge";
 import { Button } from "./ui/Button";
-import { useUsers } from "../hooks/useUsers";
+import { useUsers, useDeleteUser } from "../hooks/useUsers";
 import { formatDate } from "../utils/format";
 import type { Role } from "../types";
-import { useToast } from "./ui/Toaster";
+import { useToast } from "../hooks/useToast";
 import { ConfirmDialog } from "./ui/Dialog";
 import { SkeletonTable } from "./ui/Skeleton";
 import { useState } from "react";
@@ -28,13 +31,14 @@ export function UsersTable() {
   const toast = useToast();
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const { data, isLoading, error } = useUsers(0, 100);
+  const { mutateAsync: deleteUser, isPending: deletePending } = useDeleteUser();
   const users = data?.content || [];
 
   const handleDelete = async () => {
     if (!deleteConfirmId) return;
     try {
-      // TODO: Implement delete user API call
-      toast.info("Delete user functionality coming soon");
+      await deleteUser(deleteConfirmId);
+      toast.success("User deleted successfully");
       setDeleteConfirmId(null);
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Failed to delete user");
@@ -77,8 +81,19 @@ export function UsersTable() {
         <TableBody>
           {users.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={6} className="text-center py-8 text-text-secondary">
-                No users found
+              <TableCell colSpan={6} className="p-0">
+                <div className="py-12">
+                  <EmptyState
+                    icon={Users}
+                    title="No users found"
+                    description="Get started by adding your first team member"
+                    action={{
+                      label: "Add User",
+                      onClick: () => (window.location.href = ROUTES.USER_NEW),
+                    }}
+                    className="border-0 shadow-none"
+                  />
+                </div>
               </TableCell>
             </TableRow>
           ) : (
@@ -112,13 +127,15 @@ export function UsersTable() {
                 </TableCell>
                 <TableCell>
                   <div className="flex gap-2">
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      className="text-text-tertiary hover:text-primary"
-                    >
-                      <Edit2 className="w-4 h-4" />
-                    </Button>
+                    <Link to={ROUTES.USER_EDIT(user.id)}>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="text-text-tertiary hover:text-primary"
+                      >
+                        <Edit2 className="w-4 h-4" />
+                      </Button>
+                    </Link>
                     <Button
                       size="sm"
                       variant="ghost"
@@ -144,6 +161,7 @@ export function UsersTable() {
         confirmText="Delete"
         cancelText="Cancel"
         variant="danger"
+        isLoading={deletePending}
       />
     </Card>
   );

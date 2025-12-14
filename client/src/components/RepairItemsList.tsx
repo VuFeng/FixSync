@@ -14,7 +14,7 @@ import { useRepairItems } from "../hooks/useRepairItems";
 import { useDevices } from "../hooks/useDevices";
 import { formatCurrency, formatDate } from "../utils/format";
 import { useDeleteRepairItem } from "../hooks/useRepairItemMutations";
-import { useToast } from "./ui/Toaster";
+import { useToast } from "../hooks/useToast";
 import { ConfirmDialog } from "./ui/Dialog";
 import { SkeletonCard } from "./ui/Skeleton";
 
@@ -163,7 +163,7 @@ export function RepairItemsList({
           <SelectTrigger className="bg-surface-secondary border-border text-text-primary">
             <SelectValue placeholder="All devices">
               {filters.deviceId
-                ? deviceMap.get(filters.deviceId) || filters.deviceId
+                ? deviceMap.get(filters.deviceId) || "Unknown Device"
                 : "All devices"}
             </SelectValue>
           </SelectTrigger>
@@ -171,7 +171,7 @@ export function RepairItemsList({
             <SelectItem value="">All devices</SelectItem>
             {devicesData?.content.map((device) => (
               <SelectItem key={device.id} value={device.id}>
-                {deviceMap.get(device.id) || device.id}
+                {deviceMap.get(device.id) || "Unknown Device"}
               </SelectItem>
             ))}
           </SelectContent>
@@ -194,7 +194,9 @@ export function RepairItemsList({
           }
         >
           <SelectTrigger className="bg-surface-secondary border-border text-text-primary">
-            <SelectValue placeholder="Service Type" />
+            <SelectValue placeholder="Service Type">
+              {filters.service && filters.service !== "all" ? filters.service : ""}
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Services</SelectItem>
@@ -210,7 +212,13 @@ export function RepairItemsList({
 
         <Select value={sortBy} onValueChange={setSortBy}>
           <SelectTrigger className="bg-surface-secondary border-border text-text-primary">
-            <SelectValue placeholder="Sort By" />
+            <SelectValue placeholder="Sort By">
+              {sortBy === "latest" ? "Latest First" :
+               sortBy === "oldest" ? "Oldest First" :
+               sortBy === "cost-high" ? "Cost: High to Low" :
+               sortBy === "cost-low" ? "Cost: Low to High" :
+               sortBy === "warranty" ? "Longest Warranty" : ""}
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="latest">Latest First</SelectItem>

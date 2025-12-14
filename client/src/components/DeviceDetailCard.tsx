@@ -1,8 +1,11 @@
-import { AlertCircle, Phone, User } from "lucide-react";
+import { Link } from "react-router-dom";
+import { AlertCircle, Phone, User, Edit2 } from "lucide-react";
 import { Card } from "./ui/Card";
-import { Badge } from "./ui/Badge";
+import { Button } from "./ui/Button";
 import { formatDate } from "../utils/format";
+import { ROUTES } from "../constants";
 import type { Device } from "../types";
+import { formatCurrency } from "../utils/format";
 
 interface Props {
   device: Device;
@@ -19,20 +22,35 @@ export function DeviceDetailCard({ device }: Props) {
             </h2>
             <p className="text-text-tertiary text-sm">{device.deviceType}</p>
           </div>
-          <Badge className="bg-blue-500/20 text-blue-400">
-            {device.status.replace("_", " ")}
-          </Badge>
+          <div className="flex flex-col items-end gap-2">
+            <div className="text-right text-sm text-text-secondary">
+              <div>
+                <span className="text-text-tertiary mr-2">Subtotal:</span>
+                <span className="text-text-primary font-semibold">
+                  {formatCurrency(device.repairSubtotal ?? 0)}
+                </span>
+              </div>
+              <div>
+                <span className="text-text-tertiary mr-2">Outstanding:</span>
+                <span className="text-primary font-semibold">
+                  {formatCurrency(device.outstandingAmount ?? 0)}
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div className="grid grid-cols-2 gap-6">
           <div>
             <p className="text-text-tertiary text-sm mb-2">Customer</p>
-            <p className="text-text-primary font-medium">{device.customerName}</p>
+            <p className="text-text-primary font-medium">
+              {device.customer?.name || device.customerName || "N/A"}
+            </p>
           </div>
           <div>
             <p className="text-text-tertiary text-sm mb-2">Phone</p>
             <p className="text-text-primary font-mono text-sm">
-              {device.customerPhone}
+              {device.customer?.phone || device.customerPhone || "N/A"}
             </p>
           </div>
           <div>
@@ -46,17 +64,15 @@ export function DeviceDetailCard({ device }: Props) {
             </p>
           </div>
           <div>
-            <p className="text-text-tertiary text-sm mb-2">Received Date</p>
+            <p className="text-text-tertiary text-sm mb-2">Created At</p>
             <p className="text-text-primary">
-              {formatDate(device.receivedDate)}
+              {formatDate(device.createdAt)}
             </p>
           </div>
           <div>
-            <p className="text-text-tertiary text-sm mb-2">Expected Return</p>
+            <p className="text-text-tertiary text-sm mb-2">Updated At</p>
             <p className="text-text-primary">
-              {device.expectedReturnDate
-                ? formatDate(device.expectedReturnDate)
-                : "N/A"}
+              {formatDate(device.updatedAt)}
             </p>
           </div>
         </div>
@@ -70,14 +86,18 @@ export function DeviceDetailCard({ device }: Props) {
               <User className="w-4 h-4 text-text-tertiary" />
               <div>
                 <p className="text-text-tertiary text-sm">Customer Name</p>
-                <p className="text-text-primary">{device.customerName}</p>
+                <p className="text-text-primary">
+                  {device.customer?.name || device.customerName || "N/A"}
+                </p>
               </div>
             </div>
             <div className="flex items-center gap-3">
               <Phone className="w-4 h-4 text-text-tertiary" />
               <div>
                 <p className="text-text-tertiary text-sm">Phone Number</p>
-                <p className="text-text-primary">{device.customerPhone}</p>
+                <p className="text-text-primary">
+                  {device.customer?.phone || device.customerPhone || "N/A"}
+                </p>
               </div>
             </div>
           </div>
@@ -92,6 +112,15 @@ export function DeviceDetailCard({ device }: Props) {
             </div>
           </div>
         )}
+
+        <div className="flex gap-2 pt-4 border-t border-border">
+          <Link to={ROUTES.DEVICES + `/${device.id}/edit`} className="flex-1">
+            <Button className="w-full bg-primary hover:bg-primary-dark">
+              <Edit2 className="w-4 h-4 mr-2" />
+              Edit Device
+            </Button>
+          </Link>
+        </div>
       </div>
     </Card>
   );

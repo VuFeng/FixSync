@@ -11,19 +11,58 @@ import {
   Receipt,
   ShieldCheck,
   Tag,
+  Package,
+  User,
+  Settings,
 } from "lucide-react";
 import { useAuthStore } from "../stores/auth.store";
 import { Button } from "./ui/Button";
 import { ROUTES } from "../constants";
 
-const menuItems = [
-  { href: ROUTES.DASHBOARD, label: "Dashboard", icon: LayoutDashboard },
-  { href: ROUTES.DEVICES, label: "Devices", icon: Smartphone },
-  { href: ROUTES.REPAIR_ITEMS, label: "Repair Items", icon: Wrench },
-  { href: ROUTES.TRANSACTIONS, label: "Transactions", icon: Receipt },
-  { href: ROUTES.WARRANTIES, label: "Warranties", icon: ShieldCheck },
-  { href: ROUTES.BRANDS, label: "Brands", icon: Tag },
-  { href: ROUTES.USERS, label: "Users", icon: Users },
+interface MenuItem {
+  href: string;
+  label: string;
+  icon: React.ComponentType<{ className?: string }>;
+}
+
+interface MenuGroup {
+  title: string;
+  items: MenuItem[];
+}
+
+const menuGroups: MenuGroup[] = [
+  {
+    title: "Main",
+    items: [
+      { href: ROUTES.DASHBOARD, label: "Dashboard", icon: LayoutDashboard },
+      { href: ROUTES.DEVICES, label: "Devices", icon: Smartphone },
+      { href: ROUTES.CUSTOMERS, label: "Customers", icon: User },
+      { href: ROUTES.REPAIR_SESSIONS, label: "Repair Sessions", icon: Wrench },
+    ],
+  },
+  {
+    title: "Services",
+    items: [
+      { href: ROUTES.REPAIR_ITEMS, label: "Repair Items", icon: Wrench },
+      { href: ROUTES.TRANSACTIONS, label: "Transactions", icon: Receipt },
+      { href: ROUTES.WARRANTIES, label: "Warranties", icon: ShieldCheck },
+    ],
+  },
+  {
+    title: "Configuration",
+    items: [
+      { href: ROUTES.BRANDS, label: "Brands", icon: Tag },
+      { href: ROUTES.DEVICE_MODELS, label: "Device Models", icon: Smartphone },
+      { href: ROUTES.SERVICE_CATALOG, label: "Service Catalog", icon: Package },
+    ],
+  },
+  {
+    title: "System",
+    items: [
+      { href: ROUTES.USERS, label: "Users", icon: Users },
+      { href: ROUTES.SETTINGS, label: "Settings", icon: Settings },
+    ],
+  },
 ];
 
 export function Sidebar() {
@@ -72,21 +111,30 @@ export function Sidebar() {
           </div>
 
           {/* Menu Items */}
-          <nav className="flex-1 space-y-2">
-            {menuItems.map(({ href, label, icon: Icon }) => (
-              <Link key={href} to={href}>
-                <Button
-                  variant="ghost"
-                  className={`w-full justify-start gap-3 ${
-                    isActive(href)
-                      ? "bg-primary/20 text-primary hover:bg-primary/40 hover:text-white"
-                      : "text-text-secondary hover:text-text-primary hover:bg-surface-secondary"
-                  }`}
-                >
-                  <Icon className={`w-5 h-5 ${isActive(href) ? "" : ""}`} />
-                  {label}
-                </Button>
-              </Link>
+          <nav className="flex-1 space-y-6 overflow-y-scroll no-scrollbar">
+            {menuGroups.map((group) => (
+              <div key={group.title}>
+                <h3 className="text-xs font-semibold text-text-tertiary uppercase tracking-wider mb-2 px-3">
+                  {group.title}
+                </h3>
+                <div className="space-y-1">
+                  {group.items.map(({ href, label, icon: Icon }) => (
+                    <Link key={href} to={href}>
+                      <Button
+                        variant="ghost"
+                        className={`w-full justify-start gap-3 ${
+                          isActive(href)
+                            ? "bg-primary/20 text-primary hover:bg-primary/40 hover:text-white"
+                            : "text-text-secondary hover:text-text-primary hover:bg-surface-secondary"
+                        }`}
+                      >
+                        <Icon className="w-5 h-5" />
+                        {label}
+                      </Button>
+                    </Link>
+                  ))}
+                </div>
+              </div>
             ))}
           </nav>
 

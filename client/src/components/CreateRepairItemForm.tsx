@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AlertCircle } from "lucide-react";
 import { Card } from "./ui/Card";
@@ -17,7 +17,7 @@ import { useDevices } from "../hooks/useDevices";
 import { useCreateRepairItem } from "../hooks/useRepairItemMutations";
 import { useActiveServices } from "../hooks/useServiceCatalog";
 import { ROUTES } from "../constants";
-import { useToast } from "./ui/Toaster";
+import { useToast } from "../hooks/useToast";
 
 interface FormState {
   deviceId: string;
@@ -52,7 +52,7 @@ export function CreateRepairItemForm() {
 
   const deviceOptions = useMemo(
     () =>
-      devices.map((d) => ({
+      (devices || []).map((d) => ({
         id: d.id,
         label:
           [
@@ -60,7 +60,7 @@ export function CreateRepairItemForm() {
             d.model?.name,
             d.deviceType,
             d.imei ? `IMEI: ${d.imei}` : null,
-            d.customerName ? `(${d.customerName})` : null,
+            d.customer?.name || d.customerName ? `(${d.customer?.name || d.customerName})` : null,
           ]
             .filter(Boolean)
             .join(" "),
@@ -70,12 +70,7 @@ export function CreateRepairItemForm() {
 
   const { mutateAsync, isPending } = useCreateRepairItem();
 
-  useEffect(() => {
-    // Reset errors when form data changes
-    if (Object.keys(errors).length > 0) {
-      setErrors({});
-    }
-  }, [formData, errors]);
+  // Reset errors when form data changes - handle in onChange handlers instead
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -184,7 +179,11 @@ export function CreateRepairItemForm() {
                 }}
               >
                 <SelectTrigger className="bg-surface-secondary border-border text-text-primary">
-                  <SelectValue placeholder="Select a catalog service" />
+                  <SelectValue placeholder="Select a catalog service">
+                    {formData.serviceId
+                      ? services.find((s) => s.id === formData.serviceId)?.name || ""
+                      : ""}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent className="bg-surface-secondary border-border max-h-72 overflow-auto">
                   <SelectItem value="">Select service</SelectItem>

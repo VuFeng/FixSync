@@ -9,7 +9,7 @@ import { Button } from "./ui/Button";
 import { Label } from "./ui/Label";
 import { useCreateBrand, useUpdateBrand } from "../hooks/useBrandMutations";
 import { useBrand } from "../hooks/useBrands";
-import { useToast } from "./ui/Toaster";
+import { useToast } from "../hooks/useToast";
 import { ROUTES } from "../constants";
 
 const brandSchema = z.object({

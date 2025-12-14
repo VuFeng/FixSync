@@ -2,14 +2,9 @@ import { Search, X } from "lucide-react";
 import { Card } from "./ui/Card";
 import { Input } from "./ui/Input";
 import { Button } from "./ui/Button";
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "./ui/Select";
-import { useUsers } from "../hooks/useUsers";
-import { PAGINATION } from "../constants";
 
 interface Filters {
   search: string;
-  status: string;
-  technician: string;
 }
 
 interface DeviceFiltersProps {
@@ -18,22 +13,9 @@ interface DeviceFiltersProps {
 }
 
 export function DeviceFilters({ filters, onFiltersChange }: DeviceFiltersProps) {
-  const { data: usersData } = useUsers(
-    PAGINATION.DEFAULT_PAGE,
-    100,
-    PAGINATION.DEFAULT_SORT_BY,
-    PAGINATION.DEFAULT_SORT_DIR
-  );
-
-  const technicians = usersData?.content.filter(
-    (u) => u.role === "TECHNICIAN" && u.isActive
-  ) || [];
-
   const handleReset = () => {
     onFiltersChange({
       search: "",
-      status: "all",
-      technician: "all",
     });
   };
 
@@ -51,39 +33,6 @@ export function DeviceFilters({ filters, onFiltersChange }: DeviceFiltersProps) 
             }
           />
         </div>
-        <Select
-          value={filters.status}
-          onValueChange={(v) => onFiltersChange({ ...filters, status: v })}
-        >
-          <SelectTrigger className="bg-surface-secondary border-border text-text-primary">
-            <SelectValue placeholder="Status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Status</SelectItem>
-            <SelectItem value="RECEIVED">Received</SelectItem>
-            <SelectItem value="INSPECTING">Inspecting</SelectItem>
-            <SelectItem value="WAITING_PARTS">Waiting Parts</SelectItem>
-            <SelectItem value="REPAIRING">Repairing</SelectItem>
-            <SelectItem value="COMPLETED">Completed</SelectItem>
-            <SelectItem value="RETURNED">Returned</SelectItem>
-          </SelectContent>
-        </Select>
-        <Select
-          value={filters.technician}
-          onValueChange={(v) => onFiltersChange({ ...filters, technician: v })}
-        >
-          <SelectTrigger className="bg-surface-secondary border-border text-text-primary">
-            <SelectValue placeholder="Technician" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Technicians</SelectItem>
-            {technicians.map((tech) => (
-              <SelectItem key={tech.id} value={tech.id}>
-                {tech.fullName}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
         <Button
           variant="outline"
           className="border-border hover:bg-surface-secondary text-text-secondary bg-transparent"
