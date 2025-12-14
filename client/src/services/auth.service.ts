@@ -20,6 +20,11 @@ export const authService = {
   logout: () => {
     localStorage.removeItem('auth_token');
     localStorage.removeItem('user');
+    // Clear zustand persist storage
+    const storage = localStorage.getItem('auth-storage');
+    if (storage) {
+      localStorage.removeItem('auth-storage');
+    }
   },
 };
 

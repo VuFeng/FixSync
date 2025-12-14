@@ -30,6 +30,48 @@ export const userService = {
     );
     return response.data.data;
   },
+
+  /**
+   * Create user
+   */
+  createUser: async (data: {
+    fullName: string;
+    email: string;
+    password: string;
+    role: string;
+  }): Promise<User> => {
+    const response = await apiClient.post<ApiResponse<User>>(
+      API_ENDPOINTS.USERS.BASE,
+      data
+    );
+    return response.data.data;
+  },
+
+  /**
+   * Update user
+   */
+  updateUser: async (
+    id: string,
+    data: {
+      fullName: string;
+      email: string;
+      password?: string;
+      role: string;
+    }
+  ): Promise<User> => {
+    const response = await apiClient.put<ApiResponse<User>>(
+      API_ENDPOINTS.USERS.BY_ID(id),
+      data
+    );
+    return response.data.data;
+  },
+
+  /**
+   * Delete user
+   */
+  deleteUser: async (id: string): Promise<void> => {
+    await apiClient.delete(API_ENDPOINTS.USERS.BY_ID(id));
+  },
 };
 
 

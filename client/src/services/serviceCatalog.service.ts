@@ -11,6 +11,15 @@ export interface ServiceCatalog {
   isActive: boolean;
 }
 
+export interface ServiceCatalogRequest {
+  name: string;
+  defaultPartUsed?: string;
+  baseCost: number;
+  defaultWarrantyMonths?: number;
+  description?: string;
+  isActive?: boolean;
+}
+
 export const serviceCatalogService = {
   getActive: async (): Promise<ServiceCatalog[]> => {
     const res = await apiClient.get<ApiResponse<ServiceCatalog[]>>(
@@ -29,6 +38,32 @@ export const serviceCatalogService = {
       { params: { page, size, sortBy, sortDir } }
     );
     return res.data.data;
+  },
+  getById: async (id: string): Promise<ServiceCatalog> => {
+    const res = await apiClient.get<ApiResponse<ServiceCatalog>>(
+      `/service-catalog/${id}`
+    );
+    return res.data.data;
+  },
+  create: async (data: ServiceCatalogRequest): Promise<ServiceCatalog> => {
+    const res = await apiClient.post<ApiResponse<ServiceCatalog>>(
+      "/service-catalog",
+      data
+    );
+    return res.data.data;
+  },
+  update: async (
+    id: string,
+    data: ServiceCatalogRequest
+  ): Promise<ServiceCatalog> => {
+    const res = await apiClient.put<ApiResponse<ServiceCatalog>>(
+      `/service-catalog/${id}`,
+      data
+    );
+    return res.data.data;
+  },
+  delete: async (id: string): Promise<void> => {
+    await apiClient.delete(`/service-catalog/${id}`);
   },
 };
 

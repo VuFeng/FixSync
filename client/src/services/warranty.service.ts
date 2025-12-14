@@ -1,6 +1,6 @@
 import apiClient from "./api";
 import { API_ENDPOINTS } from "../constants";
-import type { ApiResponse, Warranty, PageResponse } from "../types";
+import type { ApiResponse, Warranty, PageResponse, WarrantyRequest } from "../types";
 
 export const warrantyService = {
   getByDevice: async (deviceId: string): Promise<Warranty[]> => {
@@ -23,5 +23,32 @@ export const warrantyService = {
       }
     );
     return response.data.data;
+  },
+
+  getWarrantyById: async (id: string): Promise<Warranty> => {
+    const response = await apiClient.get<ApiResponse<Warranty>>(
+      API_ENDPOINTS.WARRANTIES.BY_ID(id)
+    );
+    return response.data.data;
+  },
+
+  createWarranty: async (data: WarrantyRequest): Promise<Warranty> => {
+    const response = await apiClient.post<ApiResponse<Warranty>>(
+      API_ENDPOINTS.WARRANTIES.BASE,
+      data
+    );
+    return response.data.data;
+  },
+
+  updateWarranty: async (id: string, data: WarrantyRequest): Promise<Warranty> => {
+    const response = await apiClient.put<ApiResponse<Warranty>>(
+      API_ENDPOINTS.WARRANTIES.BY_ID(id),
+      data
+    );
+    return response.data.data;
+  },
+
+  deleteWarranty: async (id: string): Promise<void> => {
+    await apiClient.delete(API_ENDPOINTS.WARRANTIES.BY_ID(id));
   },
 };

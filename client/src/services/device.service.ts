@@ -1,6 +1,11 @@
-import apiClient from './api';
-import { API_ENDPOINTS } from '../constants';
-import type { ApiResponse, Device, PageResponse, DeviceRequest } from '../types';
+import apiClient from "./api";
+import { API_ENDPOINTS } from "../constants";
+import type {
+  ApiResponse,
+  Device,
+  PageResponse,
+  DeviceRequest,
+} from "../types";
 
 export const deviceService = {
   /**
@@ -9,8 +14,8 @@ export const deviceService = {
   getAllDevices: async (
     page: number = 0,
     size: number = 10,
-    sortBy: string = 'createdAt',
-    sortDir: string = 'DESC'
+    sortBy: string = "createdAt",
+    sortDir: string = "DESC"
   ): Promise<PageResponse<Device>> => {
     const response = await apiClient.get<ApiResponse<PageResponse<Device>>>(
       API_ENDPOINTS.DEVICES.BASE,
@@ -59,31 +64,4 @@ export const deviceService = {
   deleteDevice: async (id: string): Promise<void> => {
     await apiClient.delete(API_ENDPOINTS.DEVICES.BY_ID(id));
   },
-
-  /**
-   * Update device status
-   */
-  updateDeviceStatus: async (
-    id: string,
-    status: string
-  ): Promise<Device> => {
-    const response = await apiClient.patch<ApiResponse<Device>>(
-      API_ENDPOINTS.DEVICES.STATUS(id) + `?status=${status}`
-    );
-    return response.data.data;
-  },
-
-  /**
-   * Assign device to technician
-   */
-  assignDevice: async (
-    id: string,
-    assignedToId: string
-  ): Promise<Device> => {
-    const response = await apiClient.patch<ApiResponse<Device>>(
-      API_ENDPOINTS.DEVICES.ASSIGN(id) + `?assignedToId=${assignedToId}`
-    );
-    return response.data.data;
-  },
 };
-
