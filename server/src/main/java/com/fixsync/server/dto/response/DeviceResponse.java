@@ -16,8 +16,15 @@ import java.util.UUID;
 @AllArgsConstructor
 public class DeviceResponse {
     private UUID id;
+    
+    // Customer as object (preferred)
+    private CustomerResponse customer;
+    
+    // Legacy fields - kept for backward compatibility
+    // Will be populated from customer if customer exists
     private String customerName;
     private String customerPhone;
+    
     private String deviceType;
     
     // Brand and Model as objects
@@ -26,17 +33,15 @@ public class DeviceResponse {
     
     private String imei;
     private String color;
-    private LocalDateTime receivedDate;
-    private LocalDateTime expectedReturnDate;
-    private Integer warrantyMonths;
     private UserResponse createdBy;
-    private UserResponse assignedTo;
-    private DeviceStatus status;
     private String note;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private List<RepairItemResponse> repairItems;
     private TransactionResponse transaction;
+    // Convenience totals
+    private Integer repairSubtotal;      // sum of repair items cost (non-null)
+    private Integer outstandingAmount;   // repairSubtotal - latest transaction finalAmount (never negative)
 }
 
 

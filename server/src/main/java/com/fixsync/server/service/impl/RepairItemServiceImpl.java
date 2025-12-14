@@ -10,6 +10,7 @@ import com.fixsync.server.exception.ResourceNotFoundException;
 import com.fixsync.server.mapper.RepairItemMapper;
 import com.fixsync.server.repository.DeviceRepository;
 import com.fixsync.server.repository.RepairItemRepository;
+import com.fixsync.server.repository.RepairSessionRepository;
 import com.fixsync.server.repository.ServiceCatalogRepository;
 import com.fixsync.server.service.RepairItemService;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +30,7 @@ public class RepairItemServiceImpl implements RepairItemService {
     private final RepairItemRepository repairItemRepository;
     private final DeviceRepository deviceRepository;
     private final ServiceCatalogRepository serviceCatalogRepository;
+    private final RepairSessionRepository repairSessionRepository;
     private final RepairItemMapper repairItemMapper;
     
     @Override
@@ -41,13 +43,23 @@ public class RepairItemServiceImpl implements RepairItemService {
         if (request.getServiceId() != null) {
             serviceCatalog = serviceCatalogRepository.findById(request.getServiceId())
                     .orElseThrow(() -> new ResourceNotFoundException("Dịch vụ", "id", request.getServiceId()));
+        } else if (request.getServiceName() != null && !request.getServiceName().isBlank()) {
+            serviceCatalog = serviceCatalogRepository.findByNameIgnoreCase(request.getServiceName()).orElse(null);
         }
         
         RepairItem repairItem = repairItemMapper.toEntity(request);
         repairItem.setDevice(device);
         repairItem.setServiceCatalog(serviceCatalog);
 
-        // Autofill from service catalog if available
+        // Attach to specified repair session or latest of device
+        var session = request.getRepairSessionId() != null
+                ? repairSessionRepository.findById(request.getRepairSessionId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Phiên sửa chữa", "id", request.getRepairSessionId()))
+                : repairSessionRepository.findTopByDeviceIdOrderByCreatedAtDesc(device.getId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Phiên sửa chữa", "deviceId", device.getId()));
+        repairItem.setRepairSession(session);
+
+        // Autofill from service catalog if available (by id or matched name)
         if (serviceCatalog != null) {
             repairItem.setServiceName(serviceCatalog.getName());
             if (repairItem.getPartUsed() == null || repairItem.getPartUsed().isBlank()) {
@@ -83,6 +95,12 @@ public class RepairItemServiceImpl implements RepairItemService {
             Device device = deviceRepository.findById(request.getDeviceId())
                     .orElseThrow(() -> new ResourceNotFoundException("Thiết bị", "id", request.getDeviceId()));
             repairItem.setDevice(device);
+            var session = request.getRepairSessionId() != null
+                    ? repairSessionRepository.findById(request.getRepairSessionId())
+                        .orElseThrow(() -> new ResourceNotFoundException("Phiên sửa chữa", "id", request.getRepairSessionId()))
+                    : repairSessionRepository.findTopByDeviceIdOrderByCreatedAtDesc(device.getId())
+                        .orElseThrow(() -> new ResourceNotFoundException("Phiên sửa chữa", "deviceId", device.getId()));
+            repairItem.setRepairSession(session);
         }
 
         ServiceCatalog serviceCatalog = null;
@@ -90,13 +108,27 @@ public class RepairItemServiceImpl implements RepairItemService {
             serviceCatalog = serviceCatalogRepository.findById(request.getServiceId())
                     .orElseThrow(() -> new ResourceNotFoundException("Dịch vụ", "id", request.getServiceId()));
             repairItem.setServiceCatalog(serviceCatalog);
+        } else if (request.getServiceName() != null && !request.getServiceName().isBlank()) {
+            serviceCatalog = serviceCatalogRepository.findByNameIgnoreCase(request.getServiceName()).orElse(null);
+            repairItem.setServiceCatalog(serviceCatalog);
         } else {
             repairItem.setServiceCatalog(null);
         }
         
         repairItemMapper.updateEntity(repairItem, request);
 
-        // Autofill if service catalog is selected
+        // Ensure repair session is set
+        if (repairItem.getRepairSession() == null) {
+            UUID deviceIdForSession = repairItem.getDevice().getId();
+            var session = request.getRepairSessionId() != null
+                    ? repairSessionRepository.findById(request.getRepairSessionId())
+                        .orElseThrow(() -> new ResourceNotFoundException("Phiên sửa chữa", "id", request.getRepairSessionId()))
+                    : repairSessionRepository.findTopByDeviceIdOrderByCreatedAtDesc(deviceIdForSession)
+                        .orElseThrow(() -> new ResourceNotFoundException("Phiên sửa chữa", "deviceId", deviceIdForSession));
+            repairItem.setRepairSession(session);
+        }
+
+        // Autofill if service catalog is selected (by id or matched name)
         if (serviceCatalog != null) {
             repairItem.setServiceName(serviceCatalog.getName());
             if (request.getPartUsed() == null || request.getPartUsed().isBlank()) {

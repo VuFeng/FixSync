@@ -4,7 +4,6 @@ import com.fixsync.server.dto.request.DeviceRequest;
 import com.fixsync.server.dto.response.ApiResponse;
 import com.fixsync.server.dto.response.DeviceResponse;
 import com.fixsync.server.dto.response.PageResponse;
-import com.fixsync.server.entity.enums.DeviceStatus;
 import com.fixsync.server.service.DeviceService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -66,26 +65,6 @@ public class DeviceController {
         
         PageResponse<DeviceResponse> response = deviceService.getAllDevices(pageable);
         return ResponseEntity.ok(ApiResponse.success(response));
-    }
-    
-    @PreAuthorize("hasAnyRole('ADMIN','TECHNICIAN')")
-    @PatchMapping("/{id}/status")
-    public ResponseEntity<ApiResponse<DeviceResponse>> updateDeviceStatus(
-            @PathVariable UUID id,
-            @RequestParam DeviceStatus status) {
-        UUID userId = userContextService.getCurrentUserId();
-        DeviceResponse response = deviceService.updateDeviceStatus(id, status, userId);
-        return ResponseEntity.ok(ApiResponse.success("Cập nhật trạng thái thành công", response));
-    }
-    
-    @PreAuthorize("hasRole('ADMIN')")
-    @PatchMapping("/{id}/assign")
-    public ResponseEntity<ApiResponse<DeviceResponse>> assignDevice(
-            @PathVariable UUID id,
-            @RequestParam UUID assignedToId) {
-        UUID userId = userContextService.getCurrentUserId();
-        DeviceResponse response = deviceService.assignDevice(id, assignedToId, userId);
-        return ResponseEntity.ok(ApiResponse.success("Giao thiết bị thành công", response));
     }
     
     @PreAuthorize("hasRole('ADMIN')")

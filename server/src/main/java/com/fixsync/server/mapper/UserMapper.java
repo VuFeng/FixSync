@@ -23,7 +23,6 @@ public interface UserMapper {
     @Mapping(target = "version", ignore = true)
     @Mapping(target = "passwordHash", ignore = true)
     @Mapping(target = "createdDevices", ignore = true)
-    @Mapping(target = "assignedDevices", ignore = true)
     @Mapping(target = "logs", ignore = true)
     User toEntity(UserRequest request);
     
@@ -33,7 +32,6 @@ public interface UserMapper {
     @Mapping(target = "version", ignore = true)
     @Mapping(target = "passwordHash", ignore = true)
     @Mapping(target = "createdDevices", ignore = true)
-    @Mapping(target = "assignedDevices", ignore = true)
     @Mapping(target = "logs", ignore = true)
     void updateEntity(@MappingTarget User user, UserRequest request);
 }

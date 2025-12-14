@@ -10,6 +10,7 @@ import com.fixsync.server.exception.ResourceNotFoundException;
 import com.fixsync.server.mapper.TransactionMapper;
 import com.fixsync.server.repository.DeviceRepository;
 import com.fixsync.server.repository.TransactionRepository;
+import com.fixsync.server.repository.RepairSessionRepository;
 import com.fixsync.server.service.TransactionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -27,6 +28,7 @@ public class TransactionServiceImpl implements TransactionService {
     
     private final TransactionRepository transactionRepository;
     private final DeviceRepository deviceRepository;
+    private final RepairSessionRepository repairSessionRepository;
     private final TransactionMapper transactionMapper;
     
     @Override
@@ -34,14 +36,21 @@ public class TransactionServiceImpl implements TransactionService {
     public TransactionResponse createTransaction(TransactionRequest request) {
         Device device = deviceRepository.findById(request.getDeviceId())
                 .orElseThrow(() -> new ResourceNotFoundException("Thiết bị", "id", request.getDeviceId()));
+
+        var session = request.getRepairSessionId() != null
+                ? repairSessionRepository.findById(request.getRepairSessionId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Phiên sửa chữa", "id", request.getRepairSessionId()))
+                : repairSessionRepository.findTopByDeviceIdOrderByCreatedAtDesc(device.getId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Phiên sửa chữa", "deviceId", device.getId()));
         
-        // Check if transaction already exists for this device
-        if (transactionRepository.findByDeviceId(request.getDeviceId()).isPresent()) {
-            throw new BadRequestException("Thiết bị này đã có giao dịch thanh toán");
+        // Check if transaction already exists for this session
+        if (transactionRepository.findByRepairSessionId(session.getId()).isPresent()) {
+            throw new BadRequestException("Phiên sửa chữa này đã có giao dịch thanh toán");
         }
         
         Transaction transaction = transactionMapper.toEntity(request);
         transaction.setDevice(device);
+        transaction.setRepairSession(session);
         transaction.setFinalAmount(request.getTotal() - request.getDiscount());
         
         if (transaction.getFinalAmount() < 0) {
@@ -61,16 +70,23 @@ public class TransactionServiceImpl implements TransactionService {
         
         Device device = deviceRepository.findById(request.getDeviceId())
                 .orElseThrow(() -> new ResourceNotFoundException("Thiết bị", "id", request.getDeviceId()));
+
+        var session = request.getRepairSessionId() != null
+                ? repairSessionRepository.findById(request.getRepairSessionId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Phiên sửa chữa", "id", request.getRepairSessionId()))
+                : repairSessionRepository.findTopByDeviceIdOrderByCreatedAtDesc(device.getId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Phiên sửa chữa", "deviceId", device.getId()));
         
-        // Check if another transaction exists for this device (excluding current transaction)
-        transactionRepository.findByDeviceId(request.getDeviceId())
+        // Check if another transaction exists for this session (excluding current transaction)
+        transactionRepository.findByRepairSessionId(session.getId())
                 .ifPresent(existingTransaction -> {
                     if (!existingTransaction.getId().equals(id)) {
-                        throw new BadRequestException("Thiết bị này đã có giao dịch thanh toán khác");
+                        throw new BadRequestException("Phiên sửa chữa này đã có giao dịch thanh toán khác");
                     }
                 });
         
         transaction.setDevice(device);
+        transaction.setRepairSession(session);
         transaction.setTotal(request.getTotal());
         transaction.setDiscount(request.getDiscount());
         transaction.setPaymentMethod(request.getPaymentMethod());

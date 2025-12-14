@@ -14,6 +14,9 @@ import java.util.UUID;
 public class WarrantyRequest {
     @NotNull(message = "ID thiết bị không được để trống")
     private UUID deviceId;
+
+    // Optional: chỉ định phiên sửa chữa, nếu null sẽ lấy phiên mới nhất của device
+    private UUID repairSessionId;
     
     private UUID repairItemId; // Optional - null nếu là bảo hành tổng cho thiết bị
     

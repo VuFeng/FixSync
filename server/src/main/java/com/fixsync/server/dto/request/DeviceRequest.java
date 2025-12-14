@@ -1,7 +1,5 @@
 package com.fixsync.server.dto.request;
 
-import com.fixsync.server.entity.enums.DeviceStatus;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -15,11 +13,15 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class DeviceRequest {
-    @NotBlank(message = "Tên khách hàng không được để trống")
+    // New way: Use customerId (preferred)
+    // If customerId is provided, customerName and customerPhone will be ignored
+    private java.util.UUID customerId;
+    
+    // Legacy way: Direct customer info (for backward compatibility)
+    // Used when customerId is null - can create device without customer
     @Size(max = 255, message = "Tên khách hàng không được vượt quá 255 ký tự")
     private String customerName;
     
-    @NotBlank(message = "Số điện thoại không được để trống")
     @Size(max = 20, message = "Số điện thoại không được vượt quá 20 ký tự")
     private String customerPhone;
     
@@ -46,17 +48,6 @@ public class DeviceRequest {
     
     @Size(max = 50, message = "Màu sắc không được vượt quá 50 ký tự")
     private String color;
-    
-    @NotNull(message = "Ngày tiếp nhận không được để trống")
-    private LocalDateTime receivedDate;
-    
-    private LocalDateTime expectedReturnDate;
-    
-    private Integer warrantyMonths;
-    
-    private UUID assignedTo;
-    
-    private DeviceStatus status;
     
     private String note;
 }

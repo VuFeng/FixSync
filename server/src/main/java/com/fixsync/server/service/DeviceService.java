@@ -13,8 +13,6 @@ public interface DeviceService {
     DeviceResponse updateDevice(UUID id, DeviceRequest request);
     DeviceResponse getDeviceById(UUID id);
     PageResponse<DeviceResponse> getAllDevices(Pageable pageable);
-    DeviceResponse updateDeviceStatus(UUID id, DeviceStatus status, UUID userId);
-    DeviceResponse assignDevice(UUID id, UUID assignedToId, UUID userId);
     void deleteDevice(UUID id);
 }
 

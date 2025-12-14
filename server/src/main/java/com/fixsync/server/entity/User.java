@@ -44,9 +44,6 @@ public class User extends BaseEntity {
     @OneToMany(mappedBy = "createdBy", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Device> createdDevices;
     
-    @OneToMany(mappedBy = "assignedTo", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Device> assignedDevices;
-    
     @OneToMany(mappedBy = "createdBy", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<RealtimeLog> logs;
 }

@@ -17,6 +17,9 @@ public class RepairItemRequest {
     @NotNull(message = "ID thiết bị không được để trống")
     private UUID deviceId;
 
+    // Optional: chỉ định phiên sửa chữa, nếu null sẽ lấy phiên mới nhất của device
+    private UUID repairSessionId;
+
     private UUID serviceId;
 
     @Size(max = 255, message = "Tên dịch vụ không được vượt quá 255 ký tự")

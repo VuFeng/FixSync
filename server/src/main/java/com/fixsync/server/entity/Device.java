@@ -1,21 +1,17 @@
 package com.fixsync.server.entity;
 
-import com.fixsync.server.entity.enums.DeviceStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
 @Table(name = "devices", indexes = {
-    @Index(name = "idx_devices_status", columnList = "status"),
     @Index(name = "idx_devices_created_by", columnList = "created_by"),
-    @Index(name = "idx_devices_assigned_to", columnList = "assigned_to"),
-    @Index(name = "idx_devices_received_date", columnList = "received_date")
+    @Index(name = "idx_devices_customer_id", columnList = "customer_id")
 })
 @Getter
 @Setter
@@ -23,10 +19,17 @@ import java.util.List;
 @AllArgsConstructor
 public class Device extends BaseEntity {
     
-    @Column(name = "customer_name", nullable = false, length = 255)
+    // Customer relationship - nullable, device can exist without customer
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "customer_id", foreignKey = @ForeignKey(name = "fk_devices_customer"))
+    private Customer customer;
+    
+    // Legacy fields - kept for backward compatibility, nullable now
+    // These will be populated from customer if customer exists, or can be set directly
+    @Column(name = "customer_name", length = 255)
     private String customerName;
     
-    @Column(name = "customer_phone", nullable = false, length = 20)
+    @Column(name = "customer_phone", length = 20)
     private String customerPhone;
     
     @Column(name = "device_type", nullable = false, length = 100)
@@ -54,26 +57,9 @@ public class Device extends BaseEntity {
     @Column(name = "color", length = 50)
     private String color;
     
-    @Column(name = "received_date", nullable = false)
-    private LocalDateTime receivedDate;
-    
-    @Column(name = "expected_return_date")
-    private LocalDateTime expectedReturnDate;
-    
-    @Column(name = "warranty_months")
-    private Integer warrantyMonths;
-    
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "created_by", nullable = false, foreignKey = @ForeignKey(name = "fk_devices_created_by"))
     private User createdBy;
-    
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "assigned_to", foreignKey = @ForeignKey(name = "fk_devices_assigned_to"))
-    private User assignedTo;
-    
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false, length = 50)
-    private DeviceStatus status = DeviceStatus.RECEIVED;
     
     @Column(name = "note", columnDefinition = "TEXT")
     private String note;
@@ -87,6 +73,9 @@ public class Device extends BaseEntity {
     
     @OneToMany(mappedBy = "device", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Warranty> warranties;
+
+    @OneToMany(mappedBy = "device", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<RepairSession> repairSessions;
     
     @OneToMany(mappedBy = "device", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<RealtimeLog> logs;

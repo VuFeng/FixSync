@@ -21,6 +21,10 @@ public class RepairItem extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "device_id", nullable = false, foreignKey = @ForeignKey(name = "fk_repair_items_device"))
     private Device device;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "repair_session_id", nullable = false, foreignKey = @ForeignKey(name = "fk_repair_items_session"))
+    private RepairSession repairSession;
     
     @Column(name = "service_name", nullable = false, length = 255)
     private String serviceName;

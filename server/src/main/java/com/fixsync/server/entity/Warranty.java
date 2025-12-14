@@ -23,6 +23,10 @@ public class Warranty extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "device_id", nullable = false, foreignKey = @ForeignKey(name = "fk_warranties_device"))
     private Device device;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "repair_session_id", nullable = false, foreignKey = @ForeignKey(name = "fk_warranties_session"))
+    private RepairSession repairSession;
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "repair_item_id", foreignKey = @ForeignKey(name = "fk_warranties_repair_item"))

@@ -21,6 +21,10 @@ public class Transaction extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "device_id", nullable = false, foreignKey = @ForeignKey(name = "fk_transactions_device"))
     private Device device;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "repair_session_id", nullable = false, foreignKey = @ForeignKey(name = "fk_transactions_session"))
+    private RepairSession repairSession;
     
     @Column(name = "total", nullable = false)
     private Integer total;

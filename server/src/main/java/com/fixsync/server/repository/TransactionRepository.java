@@ -17,6 +17,10 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
     Optional<Transaction> findByDeviceId(UUID deviceId);
     
     Page<Transaction> findByDeviceId(UUID deviceId, Pageable pageable);
+
+    Optional<Transaction> findByRepairSessionId(UUID repairSessionId);
+
+    Optional<Transaction> findTopByDeviceIdOrderByCreatedAtDesc(UUID deviceId);
     
     @Query("SELECT SUM(t.finalAmount) FROM Transaction t WHERE " +
            "t.createdAt >= :startDate AND t.createdAt <= :endDate")

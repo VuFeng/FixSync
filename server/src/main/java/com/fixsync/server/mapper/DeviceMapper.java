@@ -10,7 +10,7 @@ import org.mapstruct.ReportingPolicy;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring", uses = {UserMapper.class, RepairItemMapper.class, TransactionMapper.class}, 
+@Mapper(componentModel = "spring", uses = {UserMapper.class, RepairItemMapper.class, TransactionMapper.class, CustomerMapper.class}, 
         unmappedTargetPolicy = ReportingPolicy.IGNORE, nullValuePropertyMappingStrategy = org.mapstruct.NullValuePropertyMappingStrategy.IGNORE)
 public interface DeviceMapper {
     
@@ -27,7 +27,6 @@ public interface DeviceMapper {
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "version", ignore = true)
     @Mapping(target = "createdBy", ignore = true)
-    @Mapping(target = "assignedTo", ignore = true)
     @Mapping(target = "repairItems", ignore = true)
     @Mapping(target = "transactions", ignore = true)
     @Mapping(target = "warranties", ignore = true)
@@ -41,7 +40,6 @@ public interface DeviceMapper {
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "version", ignore = true)
     @Mapping(target = "createdBy", ignore = true)
-    @Mapping(target = "assignedTo", ignore = true)
     @Mapping(target = "repairItems", ignore = true)
     @Mapping(target = "transactions", ignore = true)
     @Mapping(target = "warranties", ignore = true)

@@ -15,6 +15,9 @@ import java.util.UUID;
 public class TransactionRequest {
     @NotNull(message = "ID thiết bị không được để trống")
     private UUID deviceId;
+
+    // Optional: chỉ định phiên sửa chữa, nếu null sẽ lấy phiên mới nhất của device
+    private UUID repairSessionId;
     
     @NotNull(message = "Tổng tiền không được để trống")
     @PositiveOrZero(message = "Tổng tiền phải lớn hơn hoặc bằng 0")

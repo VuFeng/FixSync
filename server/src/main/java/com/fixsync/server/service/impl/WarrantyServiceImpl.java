@@ -10,6 +10,7 @@ import com.fixsync.server.exception.ResourceNotFoundException;
 import com.fixsync.server.mapper.WarrantyMapper;
 import com.fixsync.server.repository.DeviceRepository;
 import com.fixsync.server.repository.RepairItemRepository;
+import com.fixsync.server.repository.RepairSessionRepository;
 import com.fixsync.server.repository.WarrantyRepository;
 import com.fixsync.server.service.WarrantyService;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +31,7 @@ public class WarrantyServiceImpl implements WarrantyService {
     private final WarrantyRepository warrantyRepository;
     private final DeviceRepository deviceRepository;
     private final RepairItemRepository repairItemRepository;
+    private final RepairSessionRepository repairSessionRepository;
     private final WarrantyMapper warrantyMapper;
     
     @Override
@@ -44,11 +46,18 @@ public class WarrantyServiceImpl implements WarrantyService {
                     .orElseThrow(() -> new ResourceNotFoundException("Dịch vụ sửa chữa", "id", request.getRepairItemId()));
         }
         
+        var session = request.getRepairSessionId() != null
+                ? repairSessionRepository.findById(request.getRepairSessionId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Phiên sửa chữa", "id", request.getRepairSessionId()))
+                : repairSessionRepository.findTopByDeviceIdOrderByCreatedAtDesc(device.getId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Phiên sửa chữa", "deviceId", device.getId()));
+        
         LocalDateTime startDate = LocalDateTime.now();
         LocalDateTime endDate = startDate.plusMonths(request.getWarrantyMonths());
         
         Warranty warranty = new Warranty();
         warranty.setDevice(device);
+        warranty.setRepairSession(session);
         warranty.setRepairItem(repairItem);
         warranty.setStartDate(startDate);
         warranty.setEndDate(endDate);
@@ -73,9 +82,16 @@ public class WarrantyServiceImpl implements WarrantyService {
             repairItem = repairItemRepository.findById(request.getRepairItemId())
                     .orElseThrow(() -> new ResourceNotFoundException("Dịch vụ sửa chữa", "id", request.getRepairItemId()));
         }
+
+        var session = request.getRepairSessionId() != null
+                ? repairSessionRepository.findById(request.getRepairSessionId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Phiên sửa chữa", "id", request.getRepairSessionId()))
+                : repairSessionRepository.findTopByDeviceIdOrderByCreatedAtDesc(device.getId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Phiên sửa chữa", "deviceId", device.getId()));
         
         // Cập nhật thông tin
         warranty.setDevice(device);
+        warranty.setRepairSession(session);
         warranty.setRepairItem(repairItem);
         
         // Tính lại endDate dựa trên warrantyMonths mới

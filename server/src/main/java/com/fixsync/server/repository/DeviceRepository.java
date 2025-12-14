@@ -13,10 +13,10 @@ import java.util.UUID;
 @Repository
 public interface DeviceRepository extends JpaRepository<Device, UUID> {
     
-    @EntityGraph(attributePaths = {"createdBy", "assignedTo", "brandEntity", "modelEntity"})
+    @EntityGraph(attributePaths = {"createdBy", "customer", "brandEntity", "modelEntity"})
     Optional<Device> findById(UUID id);
     
-    @EntityGraph(attributePaths = {"createdBy", "assignedTo", "brandEntity", "modelEntity"})
+    @EntityGraph(attributePaths = {"createdBy", "customer", "brandEntity", "modelEntity"})
     Page<Device> findAll(Pageable pageable);
 }
 
