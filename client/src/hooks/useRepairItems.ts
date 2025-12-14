@@ -25,4 +25,12 @@ export function useRepairItems(
   });
 }
 
+export function useRepairItem(id: string | undefined) {
+  return useQuery<RepairItem>({
+    queryKey: ["repair-item", id],
+    queryFn: () => repairItemService.getRepairItemById(id!),
+    enabled: !!id,
+  });
+}
+
 

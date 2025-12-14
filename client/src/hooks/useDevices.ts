@@ -58,29 +58,3 @@ export function useDeleteDevice() {
   });
 }
 
-export function useUpdateDeviceStatus() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: ({ id, status }: { id: string; status: string }) =>
-      deviceService.updateDeviceStatus(id, status),
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['devices'] });
-      queryClient.invalidateQueries({ queryKey: ['device', variables.id] });
-    },
-  });
-}
-
-export function useAssignDevice() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: ({ id, assignedToId }: { id: string; assignedToId: string }) =>
-      deviceService.assignDevice(id, assignedToId),
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['devices'] });
-      queryClient.invalidateQueries({ queryKey: ['device', variables.id] });
-    },
-  });
-}
-

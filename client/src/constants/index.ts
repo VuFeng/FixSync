@@ -11,6 +11,11 @@ export const API_ENDPOINTS = {
     ACTIVATE: (id: string) => `/users/${id}/activate`,
     DEACTIVATE: (id: string) => `/users/${id}/deactivate`,
   },
+  // Customers
+  CUSTOMERS: {
+    BASE: "/customers",
+    BY_ID: (id: string) => `/customers/${id}`,
+  },
   // Brands
   BRANDS: {
     BASE: "/brands",
@@ -19,16 +24,22 @@ export const API_ENDPOINTS = {
   },
   // Device Models
   DEVICE_MODELS: {
+    BASE: "/device-models",
     BY_BRAND: (brandId: string) => `/device-models/brand/${brandId}`,
     BY_DEVICE_TYPE: (deviceType: string) =>
       `/device-models/device-type/${deviceType}`,
+    BY_ID: (id: string) => `/device-models/${id}`,
+    CREATE: (brandId: string) => `/device-models/brand/${brandId}`,
   },
   // Devices
   DEVICES: {
     BASE: "/devices",
     BY_ID: (id: string) => `/devices/${id}`,
-    STATUS: (id: string) => `/devices/${id}/status`,
-    ASSIGN: (id: string) => `/devices/${id}/assign`,
+  },
+  REPAIR_SESSIONS: {
+    BASE: "/repair-sessions",
+    BY_ID: (id: string) => `/repair-sessions/${id}`,
+    BY_DEVICE: (deviceId: string) => `/repair-sessions?deviceId=${deviceId}`,
   },
   // Repair Items
   REPAIR_ITEMS: {
@@ -89,11 +100,27 @@ export const ROUTES = {
   DEVICES: "/devices",
   DEVICE_DETAIL: (id: string) => `/devices/${id}`,
   USERS: "/users",
+  USER_NEW: "/users/new",
+  USER_EDIT: (id: string) => `/users/${id}/edit`,
   REPAIR_ITEMS: "/repair-items",
   REPAIR_ITEMS_NEW: "/repair-items/new",
   TRANSACTIONS: "/transactions",
+  TRANSACTION_DETAIL: (id: string) => `/transactions/${id}`,
+  TRANSACTION_EDIT: (id: string) => `/transactions/${id}/edit`,
+  TRANSACTION_NEW: "/transactions/new",
   WARRANTIES: "/warranties",
+  WARRANTY_DETAIL: (id: string) => `/warranties/${id}`,
+  WARRANTY_EDIT: (id: string) => `/warranties/${id}/edit`,
+  WARRANTY_NEW: "/warranties/new",
+  CUSTOMERS: "/customers",
+  CUSTOMER_EDIT: (id: string) => `/customers/${id}/edit`,
+  REPAIR_SESSIONS: "/repair-sessions",
+  REPAIR_SESSION_DETAIL: (id: string) => `/repair-sessions/${id}`,
+  REPAIR_SESSION_EDIT: (id: string) => `/repair-sessions/${id}/edit`,
+  REPAIR_SESSION_NEW: "/repair-sessions/new",
   BRANDS: "/brands",
+  DEVICE_MODELS: "/device-models",
+  SERVICE_CATALOG: "/service-catalog",
   SETTINGS: "/settings",
 } as const;
 
